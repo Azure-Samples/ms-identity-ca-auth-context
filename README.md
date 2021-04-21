@@ -50,7 +50,7 @@ This code sample uses the Conditional Access Auth Context to demand a higher bar
 From your shell or command line:
 
 ```console
-git clone https://github.com/Azure-Samples/active-directory-aspnetcore-webapp-openidconnect-v2.git
+git clone https://github.com/Azure-Samples/ms-identity-ca-auth-context.git
 ```
 
 or download and extract the repository .zip file.
@@ -127,6 +127,7 @@ As a first step you'll need to:
    - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
    - In the **Delegated permissions** section, select the **Policy.Read.ConditionalAccess**, **Policy.ReadWrite.ConditionalAccess** in the list. Use the search box if necessary.
    - Select the **Add permissions** button at the bottom.
+   - Select **Grant admin consent for (your tenant)**.
 1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can declare the parameters to expose this app as an API for which client applications can obtain [access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) for.
 The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this Api. To declare an resource URI, follow the following steps:
    - Select `Set` next to the **Application ID URI** to generate a URI that is unique for this app.

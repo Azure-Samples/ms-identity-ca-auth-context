@@ -376,6 +376,14 @@ Function ConfigureApplications
    Write-Host "Updating the sample code ($configFile)"
    $dictionary = @{ "Domain" = $tenantName;"TenantId" = $tenantId;"ClientId" = $clientAadApplication.AppId;"ClientSecret" = $clientAppKey;"TodoListScope" = ("api://"+$serviceAadApplication.AppId+"/access_as_user");"TodoListBaseAddress" = $serviceAadApplication.HomePage };
    UpdateTextFile -configFilePath $configFile -dictionary $dictionary
+   Write-Host ""
+   Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+   Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
+   Write-Host "- For 'service'"
+   Write-Host "  - Navigate to '$servicePortalUrl'"
+   Write-Host "  - If you are a tenant admin, navigate to the API Permissions page and select 'Grant admin consent for (your tenant)'" -ForegroundColor Red 
+
+   Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
 
    Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
 }

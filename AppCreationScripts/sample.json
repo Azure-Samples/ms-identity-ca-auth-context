@@ -25,8 +25,12 @@
           "Resource": "Microsoft Graph",
           "DelegatedPermissions": [ "Policy.Read.ConditionalAccess", "Policy.ReadWrite.ConditionalAccess" ]
         }
+      ],
+      "ManualSteps": [
+        {
+          "Comment": "If you are a tenant admin, navigate to the API Permissions page and select 'Grant admin consent for (your tenant)'"
+        }
       ]
-
     },
     {
       "Id": "client",
