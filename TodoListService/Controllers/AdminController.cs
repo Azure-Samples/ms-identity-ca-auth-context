@@ -58,6 +58,11 @@ namespace TodoListService.Controllers
             TempData["Operations"] = Operations;
             return View();
         }
+        public IActionResult ViewDetails()
+        {
+            List<AuthContext> authContexts= _commonDBContext.AuthContext.Where(x => x.TenantId == TenantId).ToList();
+            return View(authContexts);
+        }
         [AuthorizeForScopes(ScopeKeySection = "GraphBeta:Scopes")]
 
         public async Task<List<Beta.AuthenticationContextClassReference>> CreateOrFetch()
@@ -78,7 +83,6 @@ namespace TodoListService.Controllers
             authContext.AuthContextType = dictACRValues.FirstOrDefault(x => x.Value == authContext.AuthContextValue).Key;
             await UpdateDB(authContext);
         }
-
         private async Task UpdateDB(AuthContext authContext)
         {
             _commonDBContext.AuthContext.Update(authContext);
