@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,18 +11,19 @@ using TodoListService.Models;
 
 namespace TodoListService.Controllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     public class TodoListController : Controller
     {
-        // In-memory TodoList
-        private static readonly Dictionary<int, Todo> TodoStore = new Dictionary<int, Todo>();
+        CommonDBContext _context;
 
         private readonly IHttpContextAccessor _contextAccessor;
 
-        public TodoListController(IHttpContextAccessor contextAccessor)
+        public TodoListController(IHttpContextAccessor contextAccessor, CommonDBContext context)
         {
             _contextAccessor = contextAccessor;
+
+            _context = context;
         }
 
         // GET: api/values
@@ -29,30 +31,34 @@ namespace TodoListService.Controllers
         public IEnumerable<Todo> Get()
         {
             string owner = User.Identity.Name;
-            return TodoStore.Values.Where(x => x.Owner == owner);
+            return _context.Todo.ToList();
         }
 
         // GET: api/values
         [HttpGet("{id}", Name = "Get")]
         public Todo Get(int id)
         {
-            return TodoStore.Values.FirstOrDefault(t => t.Id == id);
+            return _context.Todo.FirstOrDefault(t => t.Id == id);
         }
 
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            TodoStore.Remove(id);
+            var todo = _context.Todo.Find(id);
+            if (todo == null)
+            {
+                _context.Todo.Remove(todo);
+                _context.SaveChanges();
+            }
         }
 
         // POST api/values
         [HttpPost]
         public IActionResult Post([FromBody] Todo todo)
         {
-            int id = TodoStore.Values.OrderByDescending(x => x.Id).FirstOrDefault().Id + 1;
-            Todo todonew = new Todo() { Id = id, Owner = HttpContext.User.Identity.Name, Title = todo.Title };
-            TodoStore.Add(id, todonew);
-
+            Todo todonew = new Todo() {  Owner = HttpContext.User.Identity.Name, Title = todo.Title };
+            _context.Todo.Add(todonew);
+            _context.SaveChanges();
             return Ok(todo);
         }
 
@@ -65,13 +71,8 @@ namespace TodoListService.Controllers
                 return NotFound();
             }
 
-            if (TodoStore.Values.FirstOrDefault(x => x.Id == id) == null)
-            {
-                return NotFound();
-            }
-
-            TodoStore.Remove(id);
-            TodoStore.Add(id, todo);
+            _context.Todo.Update(todo);
+            _context.SaveChanges();
 
             return Ok(todo);
         }

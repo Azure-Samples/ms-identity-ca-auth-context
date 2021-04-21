@@ -17,8 +17,16 @@
       "Name": "TodoListService-aspnetcore-webapi",
       "Kind": "WebApi",
       "Audience": "AzureADMyOrg",
-      "HomePage": "https://localhost:44351"
-     
+      "HomePage": "https://localhost:44351",
+      "ReplyUrls": "https://localhost:44351/, https://localhost:44351/signin-oidc",
+      "PasswordCredentials": "Auto",
+      "RequiredResourcesAccess": [
+        {
+          "Resource": "Microsoft Graph",
+          "DelegatedPermissions": [ "Policy.Read.ConditionalAccess", "Policy.ReadWrite.ConditionalAccess" ]
+        }
+      ]
+
     },
     {
       "Id": "client",
@@ -61,6 +69,10 @@
         {
           "key": "ClientId",
           "value": "service.AppId"
+        },
+        {
+          "key": "ClientSecret",
+          "value": ".AppKey"
         }
       ]
     },
@@ -68,7 +80,7 @@
     {
       "App": "client",
       "SettingKind": "Text",
-      "SettingFile": "\\..\\Client\\appsettings.json",
+      "SettingFile": "\\..\\TodoListClient\\appsettings.json",
       "Mappings": [
         {
           "key": "Domain",

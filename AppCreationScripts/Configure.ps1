@@ -229,9 +229,16 @@ Function ConfigureApplications
 
    # Create the service AAD application
    Write-Host "Creating the AAD application (TodoListService-aspnetcore-webapi)"
+   # Get a 2 years application key for the service Application
+   $pw = ComputePassword
+   $fromDate = [DateTime]::Now;
+   $key = CreateAppKey -fromDate $fromDate -durationInYears 2 -pw $pw
+   $serviceAppKey = $pw
    # create the application 
    $serviceAadApplication = New-AzureADApplication -DisplayName "TodoListService-aspnetcore-webapi" `
                                                    -HomePage "https://localhost:44351" `
+                                                   -ReplyUrls "https://localhost:44351/", "https://localhost:44351/signin-oidc" `
+                                                   -PasswordCredentials $key `
                                                    -PublicClient $False
 
    $serviceIdentifierUri = 'api://'+$serviceAadApplication.AppId
@@ -288,6 +295,18 @@ Function ConfigureApplications
    $servicePortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$serviceAadApplication.AppId+"/objectId/"+$serviceAadApplication.ObjectId+"/isMSAApp/"
    Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>TodoListService-aspnetcore-webapi</a></td></tr>" -Path createdApps.html
 
+   $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.RequiredResourceAccess]
+
+   # Add Required Resources Access (from 'service' to 'Microsoft Graph')
+   Write-Host "Getting access from 'service' to 'Microsoft Graph'"
+   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
+                                                -requiredDelegatedPermissions "Policy.Read.ConditionalAccess|Policy.ReadWrite.ConditionalAccess" `
+
+   $requiredResourcesAccess.Add($requiredPermissions)
+
+
+   Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -RequiredResourceAccess $requiredResourcesAccess
+   Write-Host "Granted permissions."
 
    # Create the client AAD application
    Write-Host "Creating the AAD application (TodoListClient-aspnetcore-webapi)"
@@ -338,18 +357,26 @@ Function ConfigureApplications
    Set-AzureADApplication -ObjectId $clientAadApplication.ObjectId -RequiredResourceAccess $requiredResourcesAccess
    Write-Host "Granted permissions."
 
+   # Configure known client applications for service 
+   Write-Host "Configure known client applications for the 'service'"
+   $knowApplications = New-Object System.Collections.Generic.List[System.String]
+    $knowApplications.Add($clientAadApplication.AppId)
+   Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -KnownClientApplications $knowApplications
+   Write-Host "Configured."
+
+
    # Update config file for 'service'
    $configFile = $pwd.Path + "\..\TodoListService\appsettings.json"
    Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "Domain" = $tenantName;"TenantId" = $tenantId;"ClientId" = $serviceAadApplication.AppId };
+   $dictionary = @{ "Domain" = $tenantName;"TenantId" = $tenantId;"ClientId" = $serviceAadApplication.AppId;"ClientSecret" = $serviceAppKey };
    UpdateTextFile -configFilePath $configFile -dictionary $dictionary
 
    # Update config file for 'client'
-   $configFile = $pwd.Path + "\..\Client\appsettings.json"
+   $configFile = $pwd.Path + "\..\TodoListClient\appsettings.json"
    Write-Host "Updating the sample code ($configFile)"
    $dictionary = @{ "Domain" = $tenantName;"TenantId" = $tenantId;"ClientId" = $clientAadApplication.AppId;"ClientSecret" = $clientAppKey;"TodoListScope" = ("api://"+$serviceAadApplication.AppId+"/access_as_user");"TodoListBaseAddress" = $serviceAadApplication.HomePage };
    UpdateTextFile -configFilePath $configFile -dictionary $dictionary
-  
+
    Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
 }
 

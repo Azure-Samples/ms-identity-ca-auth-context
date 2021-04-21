@@ -11,7 +11,7 @@ param(
 
 
 if ($null -eq (Get-Module -ListAvailable -Name "AzureAD")) { 
-    Install-Module "AzureAD" -Scope CurrentUser 
+    Install-Module "AzureAD" -Scope CurrentUser                                            
 } 
 Import-Module AzureAD
 $ErrorActionPreference = "Stop"
@@ -60,7 +60,14 @@ Function Cleanup
     Write-Host "Cleaning-up applications from tenant '$tenantName'"
 
     Write-Host "Removing 'service' (TodoListService-aspnetcore-webapi) if needed"
-    Get-AzureADApplication -Filter "DisplayName eq 'TodoListService-aspnetcore-webapi'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
+    try
+    {
+        Get-AzureADApplication -Filter "DisplayName eq 'TodoListService-aspnetcore-webapi'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
+    }
+    catch
+    {
+	    Write-Host "Unable to remove the 'TodoListService-aspnetcore-webapi' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
+    }
     $apps = Get-AzureADApplication -Filter "DisplayName eq 'TodoListService-aspnetcore-webapi'"
     if ($apps)
     {
@@ -73,10 +80,23 @@ Function Cleanup
         Write-Host "Removed TodoListService-aspnetcore-webapi.."
     }
     # also remove service principals of this app
-    Get-AzureADServicePrincipal -filter "DisplayName eq 'TodoListService-aspnetcore-webapi'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
-    
+    try
+    {
+        Get-AzureADServicePrincipal -filter "DisplayName eq 'TodoListService-aspnetcore-webapi'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
+    }
+    catch
+    {
+	    Write-Host "Unable to remove ServicePrincipal 'TodoListService-aspnetcore-webapi' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+    }
     Write-Host "Removing 'client' (TodoListClient-aspnetcore-webapi) if needed"
-    Get-AzureADApplication -Filter "DisplayName eq 'TodoListClient-aspnetcore-webapi'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
+    try
+    {
+        Get-AzureADApplication -Filter "DisplayName eq 'TodoListClient-aspnetcore-webapi'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
+    }
+    catch
+    {
+	    Write-Host "Unable to remove the 'TodoListClient-aspnetcore-webapi' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
+    }
     $apps = Get-AzureADApplication -Filter "DisplayName eq 'TodoListClient-aspnetcore-webapi'"
     if ($apps)
     {
@@ -89,8 +109,14 @@ Function Cleanup
         Write-Host "Removed TodoListClient-aspnetcore-webapi.."
     }
     # also remove service principals of this app
-    Get-AzureADServicePrincipal -filter "DisplayName eq 'TodoListClient-aspnetcore-webapi'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
-    
+    try
+    {
+        Get-AzureADServicePrincipal -filter "DisplayName eq 'TodoListClient-aspnetcore-webapi'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
+    }
+    catch
+    {
+	    Write-Host "Unable to remove ServicePrincipal 'TodoListClient-aspnetcore-webapi' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+    }
 }
 
 Cleanup -Credential $Credential -tenantId $TenantId

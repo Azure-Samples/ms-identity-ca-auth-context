@@ -1,0 +1,85 @@
+﻿@model TodoListService.Models.AuthContext;
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Admin</h2>
+<div id="info">
+    Select <b>Create Or Fetch</b> button to perform following steps:
+    <ul>
+        <li>Creates auth context in Azure portal if it does not exist.</li>
+        <li>Update database with default values.</li>
+    </ul>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <button id="btnCreateOrFetch" class="btn btn-primary">Create Or Fetch</button>
+    </div>
+</div>
+
+<br />
+<form asp-action="Create" id="formMapping" hidden>
+    <h3>Update Operation-AuthContext mapping in database.</h3>
+    <input type="hidden" asp-for="TenantId" value="@((string)TempData["TenantId"])" />
+    <div class="form-group">
+        <label asp-for="Operation" class="control-label"></label>
+        <select class="form-control" asp-for="Operation" asp-items="@((List<SelectListItem>)TempData["Operations"])"></select>
+
+    </div>
+    <div class="form-group">
+        <label asp-for="AuthContextValue" class="control-label"></label>
+        <select class="form-control" asp-for="AuthContextValue" id="selAuthContextValue" asp-items="@((List<SelectListItem>)TempData["AuthContextValue"])"></select>
+
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Update" class="btn btn-primary" />
+    </div>
+</form>
+<div class="text-success" id="successMessage" hidden>
+    <p><strong>Success:</strong> Data Updated Successfully.</p>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+    $("#btnCreateOrFetch").click(function () {
+        $.ajax({
+            type: "Get",
+            url: "Admin/CreateOrFetch",
+            dataType: "json",
+            success: function (response) {
+                $("#formMapping").show();
+                $("#info").hide();
+                console.log(response);
+            },
+            failure: function (response) {
+                alert(response.responseText);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+    });
+   
+        $("form").submit(function (event) {
+            event.preventDefault();
+            var formData = $(this).serialize();
+            $.ajax({
+                type: "POST",
+                url: "Admin/UpdateAuthContextDB",
+                data: formData,
+                success: function (response) {
+                    $("#successMessage").show();
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            }).done(function (data) {
+                $("#successMessage").show();
+                console.log(data);
+            });
+           
+        });
+    });
+</script>
