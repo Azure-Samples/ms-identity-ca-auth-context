@@ -6,11 +6,11 @@ products:
   - aspnet-core
   - ms-graph
   - azure-active-directory  
-name: How to secure a Web API built with ASP.NET Core using the Microsoft identity platform (formerly Azure Active Directory for developers)
+name: Using Conditional Access Auth Context to step-up authentication in web API
 urlFragment: active-directory-aspnetcore-webapp-openidconnect-v2
 description: "This sample demonstrates a ASP.NET Core Web App calling a ASP.NET Core Web API that is secured using Azure AD"
 ---
-# How to secure a Web API built with ASP.NET Core using the Microsoft identity platform (formerly Azure Active Directory for developers)
+# Using Conditional Access Auth Context to step-up authentication in web API
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -28,7 +28,7 @@ description: "This sample demonstrates a ASP.NET Core Web App calling a ASP.NET 
 
 ## Overview
 
-This sample demonstrates a ASP.NET Core Web App calling a ASP.NET Core Web API that is secured using Azure AD.
+This code sample uses the Conditional Access Auth Context to demand a higher bar of authentication for certain high-privileged operations in a Web API.
 
 ## Scenario
 

@@ -95,14 +95,35 @@ namespace TodoListClient.Controllers
         // GET: TodoList/Edit/5
         public async Task<ActionResult> Edit(int id)
         {
-            Todo todo = await this._todoListService.GetAsync(id);
-
-            if (todo == null)
+            try
             {
-                return NotFound();
-            }
+                Todo todo = await this._todoListService.GetAsync(id);
 
-            return View(todo);
+                if (todo == null)
+                {
+                    return NotFound();
+                }
+                return View(todo);
+
+            }
+            catch (WebApiMsalUiRequiredException hex)
+            {
+                try
+                {
+                    var claimChallenge = ExtractAuthenticationHeader.ExtractHeaderValues(hex);
+                    _consentHandler.ChallengeUser(new string[] { "user.read" }, claimChallenge);
+
+                    return new EmptyResult();
+
+                }
+                catch (Exception ex)
+                {
+                    _consentHandler.HandleException(ex);
+                }
+
+                Console.WriteLine(hex.Message);
+            }
+            return View();
         }
 
         // POST: TodoList/Edit/5

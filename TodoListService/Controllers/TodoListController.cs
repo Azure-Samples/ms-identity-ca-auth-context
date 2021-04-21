@@ -44,19 +44,24 @@ namespace TodoListService.Controllers
         [HttpGet("{id}", Name = "Get")]
         public Todo Get(int id)
         {
-            EnsureUserHasElevatedScope(Request.Method);
-            return _commonDBContext.Todo.FirstOrDefault(t => t.Id == id);
+            if (EnsureUserHasElevatedScope(Request.Method))
+            {
+                return _commonDBContext.Todo.FirstOrDefault(t => t.Id == id);
+            }
+            return null;
         }
 
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            EnsureUserHasElevatedScope(Request.Method);
-            var todo = _commonDBContext.Todo.Find(id);
-            if (todo == null)
+            if (EnsureUserHasElevatedScope(Request.Method))
             {
-                _commonDBContext.Todo.Remove(todo);
-                _commonDBContext.SaveChanges();
+                var todo = _commonDBContext.Todo.Find(id);
+                if (todo == null)
+                {
+                    _commonDBContext.Todo.Remove(todo);
+                    _commonDBContext.SaveChanges();
+                }
             }
         }
 
@@ -64,10 +69,12 @@ namespace TodoListService.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] Todo todo)
         {
-            EnsureUserHasElevatedScope(Request.Method);
-            Todo todonew = new Todo() { Owner = HttpContext.User.Identity.Name, Title = todo.Title };
-            _commonDBContext.Todo.Add(todonew);
-            _commonDBContext.SaveChanges();
+            if (EnsureUserHasElevatedScope(Request.Method))
+            {
+                Todo todonew = new Todo() { Owner = HttpContext.User.Identity.Name, Title = todo.Title };
+                _commonDBContext.Todo.Add(todonew);
+                _commonDBContext.SaveChanges();
+            }
             return Ok(todo);
         }
 
@@ -85,7 +92,7 @@ namespace TodoListService.Controllers
 
             return Ok(todo);
         }
-        public void EnsureUserHasElevatedScope(string method)
+        public bool EnsureUserHasElevatedScope(string method)
         {
             string authType = _commonDBContext.AuthContext.FirstOrDefault(x => x.Operation == method && x.TenantId == _configuration["AzureAD:TenantId"])?.AuthContextType;
             if (!string.IsNullOrEmpty(authType))
@@ -114,9 +121,11 @@ namespace TodoListService.Controllers
                     string message = string.Format(CultureInfo.InvariantCulture, "The presented access tokens had insufficient claims. Please request for claims requested in the WWW-Authentication header and try again.");
                     context.Response.WriteAsync(message);
                     context.Response.CompleteAsync();
+                    return false;
                 }
 
             }
+            return true;
         }
     }
 }
