@@ -87,7 +87,7 @@ namespace TodoListService.Controllers
         }
         public void EnsureUserHasElevatedScope(string method)
         {
-            string authType = _commonDBContext.AuthContext.FirstOrDefault(x => x.Operation == method && x.TenantId == _configuration["AzureAD:TenantId"]).AuthContextType;
+            string authType = _commonDBContext.AuthContext.FirstOrDefault(x => x.Operation == method && x.TenantId == _configuration["AzureAD:TenantId"])?.AuthContextType;
             if (!string.IsNullOrEmpty(authType))
             {
 
