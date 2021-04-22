@@ -12,7 +12,7 @@ namespace TodoListClient
     internal class ExtractAuthenticationHeader
     {
         /// <summary>
-        /// Extract claims and scopes from WwwAuthenticate header and returns key value pair.
+        /// Extract claims from WwwAuthenticate header and returns the value.
         /// </summary>
         /// <param name="response"></param>
         /// <returns></returns>
@@ -26,13 +26,13 @@ namespace TodoListClient
 
                 try
                 {
+                    // read the header and checks if it conatins error with insufficient_claims value.
                     if (null != errorValue && "insufficient_claims" == errorValue)
                     {
                         var claimChallengeParameter = GetParameterValue(parameters, "claims");
                         if (null != claimChallengeParameter)
                         {
-                            var claimChallengebase64Bytes = System.Convert.FromBase64String(claimChallengeParameter);
-                            var claimChallenge = System.Text.Encoding.UTF8.GetString(claimChallengebase64Bytes);
+                            var claimChallenge = ConvertBase64String(claimChallengeParameter);
 
                             return claimChallenge;
                         }

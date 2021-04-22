@@ -1,6 +1,5 @@
-﻿extern alias BetaLib; 
+﻿extern alias BetaLib;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +13,11 @@ using Beta = BetaLib.Microsoft.Graph;
 
 namespace TodoListService.Controllers
 {
+    /// <summary>
+    /// Functionality for Admin user account.
+    /// Admin will add the Authentication context for the tenant
+    /// Save and update data in database.
+    /// </summary>
     [Authorize]
     public class AdminController : Controller
     {
@@ -21,6 +25,7 @@ namespace TodoListService.Controllers
         AuthenticationContextClassReferencesOperations _authContextClassReferencesOperations;
         IConfiguration _configuration;
 
+        // Default values for acrs claim.
         Dictionary<string, string> dictACRValues = new Dictionary<string, string>()
         {
             {"C1","Low" },
@@ -58,11 +63,22 @@ namespace TodoListService.Controllers
             TempData["Operations"] = Operations;
             return View();
         }
+
+        /// <summary>
+        /// Retreives the authentication context and operation mapping saved in database for the tenant.
+        /// </summary>
+        /// <returns></returns>
         public IActionResult ViewDetails()
         {
             List<AuthContext> authContexts= _commonDBContext.AuthContext.Where(x => x.TenantId == TenantId).ToList();
             return View(authContexts);
         }
+
+        /// <summary>
+        /// Checks if AuthenticationContext exists.
+        /// If not then create with default values and save in database.
+        /// </summary>
+        /// <returns></returns>
         [AuthorizeForScopes(ScopeKeySection = "GraphBeta:Scopes")]
 
         public async Task<List<Beta.AuthenticationContextClassReference>> CreateOrFetch()
@@ -78,16 +94,24 @@ namespace TodoListService.Controllers
             }
             return lstPolicies;
         }
+
+        /// <summary>
+        /// Update the database to save mapping of operation and auth context.
+        /// </summary>
+        /// <param name="authContext"></param>
+        /// <returns></returns>
         public async Task UpdateAuthContextDB(AuthContext authContext)
         {
             authContext.AuthContextType = dictACRValues.FirstOrDefault(x => x.Value == authContext.AuthContextValue).Key;
-            await UpdateDB(authContext);
-        }
-        private async Task UpdateDB(AuthContext authContext)
-        {
             _commonDBContext.AuthContext.Update(authContext);
             await _commonDBContext.SaveChangesAsync();
         }
+
+        /// <summary>
+        /// Create Authentication context for the tenant.
+        /// Save the values in database.
+        /// </summary>
+        /// <returns></returns>
         private async Task CreateAuthContext()
         {
             var authContexts = _commonDBContext.AuthContext.Where(x => x.TenantId == TenantId);
@@ -102,6 +126,14 @@ namespace TodoListService.Controllers
             (acr.Key, acr.Value, $"A new Authentication Context Class Reference created at {DateTime.Now.ToString()}", true);
             }
         }
+
+        /// <summary>
+        /// Save the values in database.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="tenantId"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         private async Task AddInDB(string id, string tenantId, string value)
         {
             AuthContext authContext = new AuthContext();

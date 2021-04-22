@@ -38,6 +38,7 @@ namespace TodoListClient.Controllers
             }
             catch (WebApiMsalUiRequiredException hex)
             {
+                // Challenges the user if exception is thrown from Web API.
                 try
                 {
                     var claimChallenge = ExtractAuthenticationHeader.ExtractHeaderValues(hex);
@@ -74,6 +75,7 @@ namespace TodoListClient.Controllers
             }
             catch (WebApiMsalUiRequiredException hex)
             {
+                // Challenges the user if exception is thrown from Web API.
                 try
                 {
                     var claimChallenge = ExtractAuthenticationHeader.ExtractHeaderValues(hex);
@@ -108,6 +110,7 @@ namespace TodoListClient.Controllers
             }
             catch (WebApiMsalUiRequiredException hex)
             {
+                // Challenges the user if exception is thrown from Web API.
                 try
                 {
                     var claimChallenge = ExtractAuthenticationHeader.ExtractHeaderValues(hex);
@@ -151,6 +154,7 @@ namespace TodoListClient.Controllers
             }
             catch (WebApiMsalUiRequiredException hex)
             {
+                // Challenges the user if exception is thrown from Web API.
                 try
                 {
                     var claimChallenge = ExtractAuthenticationHeader.ExtractHeaderValues(hex);
@@ -179,6 +183,7 @@ namespace TodoListClient.Controllers
             }
             catch (WebApiMsalUiRequiredException hex)
             {
+                // Challenges the user if exception is thrown from Web API.
                 try
                 {
                     var claimChallenge = ExtractAuthenticationHeader.ExtractHeaderValues(hex);

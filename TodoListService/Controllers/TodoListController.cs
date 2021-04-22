@@ -44,24 +44,20 @@ namespace TodoListService.Controllers
         [HttpGet("{id}", Name = "Get")]
         public Todo Get(int id)
         {
-            if (EnsureUserHasElevatedScope(Request.Method))
-            {
-                return _commonDBContext.Todo.FirstOrDefault(t => t.Id == id);
-            }
-            return null;
+            EnsureUserHasElevatedScope(Request.Method);
+            return _commonDBContext.Todo.FirstOrDefault(t => t.Id == id);
+
         }
 
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            if (EnsureUserHasElevatedScope(Request.Method))
+            EnsureUserHasElevatedScope(Request.Method);
+            var todo = _commonDBContext.Todo.Find(id);
+            if (todo == null)
             {
-                var todo = _commonDBContext.Todo.Find(id);
-                if (todo == null)
-                {
-                    _commonDBContext.Todo.Remove(todo);
-                    _commonDBContext.SaveChanges();
-                }
+                _commonDBContext.Todo.Remove(todo);
+                _commonDBContext.SaveChanges();
             }
         }
 
@@ -69,12 +65,10 @@ namespace TodoListService.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] Todo todo)
         {
-            if (EnsureUserHasElevatedScope(Request.Method))
-            {
-                Todo todonew = new Todo() { Owner = HttpContext.User.Identity.Name, Title = todo.Title };
-                _commonDBContext.Todo.Add(todonew);
-                _commonDBContext.SaveChanges();
-            }
+            EnsureUserHasElevatedScope(Request.Method);
+            Todo todonew = new Todo() { Owner = HttpContext.User.Identity.Name, Title = todo.Title };
+            _commonDBContext.Todo.Add(todonew);
+            _commonDBContext.SaveChanges();
             return Ok(todo);
         }
 
@@ -92,7 +86,15 @@ namespace TodoListService.Controllers
 
             return Ok(todo);
         }
-        public bool EnsureUserHasElevatedScope(string method)
+
+        /// <summary>
+        /// Retreives the acrsValue from database for the request method.
+        /// Checks if the access token has acrs claim with acrsValue.
+        /// If does not exists then adds WWW-Authenticate and throws UnauthorizedAccessException exception.
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        public void EnsureUserHasElevatedScope(string method)
         {
             string authType = _commonDBContext.AuthContext.FirstOrDefault(x => x.Operation == method && x.TenantId == _configuration["AzureAD:TenantId"])?.AuthContextType;
             if (!string.IsNullOrEmpty(authType))
@@ -107,12 +109,10 @@ namespace TodoListService.Controllers
                     throw new ArgumentNullException("No Usercontext is available to pick claims from");
                 }
 
-                // Attempt with Scp claim
                 Claim acrsClaim = context.User.FindFirst(authenticationContextClassReferencesClaim);
 
                 if (acrsClaim == null || acrsClaim.Value != authType)
                 {
-                    //string requiredClaims = acrsClaim != null ? acrsClaim.Value + "," + authType : authType;
                     string clientId = _configuration.GetSection("AzureAd").GetSection("ClientId").Value;
                     var base64str = Convert.ToBase64String(Encoding.UTF8.GetBytes("{\"access_token\":{\"acrs\":{\"essential\":true,\"value\":\"" + authType + "\"}}}"));
 
@@ -121,11 +121,9 @@ namespace TodoListService.Controllers
                     string message = string.Format(CultureInfo.InvariantCulture, "The presented access tokens had insufficient claims. Please request for claims requested in the WWW-Authentication header and try again.");
                     context.Response.WriteAsync(message);
                     context.Response.CompleteAsync();
-                    return false;
+                    throw new UnauthorizedAccessException(message);
                 }
-
             }
-            return true;
         }
     }
 }

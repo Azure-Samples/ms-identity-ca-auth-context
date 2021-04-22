@@ -381,7 +381,7 @@ Function ConfigureApplications
    Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
    Write-Host "- For 'service'"
    Write-Host "  - Navigate to '$servicePortalUrl'"
-   Write-Host "  - If you are a tenant admin, navigate to the API Permissions page and select 'Grant admin consent for (your tenant)'" -ForegroundColor Red 
+   Write-Host "  - Navigate to the API Permissions page and select 'Grant admin consent for (your tenant)'" -ForegroundColor Red 
 
    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
 

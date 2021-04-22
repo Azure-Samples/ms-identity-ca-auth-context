@@ -28,7 +28,7 @@
       ],
       "ManualSteps": [
         {
-          "Comment": "If you are a tenant admin, navigate to the API Permissions page and select 'Grant admin consent for (your tenant)'"
+          "Comment": "Navigate to the API Permissions page and select 'Grant admin consent for (your tenant)'"
         }
       ]
     },

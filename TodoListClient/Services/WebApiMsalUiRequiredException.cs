@@ -5,6 +5,9 @@ using System.Net;
 
 namespace TodoListClient.Services
 {
+    /// <summary>
+    /// Specialized excpetion handler for the TodoListService
+    /// </summary>
     public class WebApiMsalUiRequiredException : Exception
     {
         private HttpResponseMessage httpResponseMessage;
