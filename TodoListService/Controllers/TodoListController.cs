@@ -53,7 +53,7 @@ namespace TodoListService.Controllers
         {
             EnsureUserHasElevatedScope(Request.Method);
             var todo = _commonDBContext.Todo.Find(id);
-            if (todo == null)
+            if (todo != null)
             {
                 _commonDBContext.Todo.Remove(todo);
                 _commonDBContext.SaveChanges();

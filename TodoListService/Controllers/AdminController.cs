@@ -85,7 +85,7 @@ namespace TodoListService.Controllers
                     {"C1","Regular privilege" },
                     {"C2","Medium-high privilege" },
                     {"C3","High privilege" }
-                };
+            };
 
             string sessionKey = "ACRS";
 
@@ -161,20 +161,13 @@ namespace TodoListService.Controllers
         public async Task UpdateAuthContextDB(AuthContext authContext)
         {
             Dictionary<string, string> dictACRValues = await getAuthenticationContextValues();
-            authContext.AuthContextId = dictACRValues.FirstOrDefault(x => x.Value == authContext.AuthContextDisplayName).Key;
+            authContext.AuthContextDisplayName = dictACRValues.FirstOrDefault(x => x.Key == authContext.AuthContextId).Value;
 
             using (var commonDBContext = new CommonDBContext(_configuration))
             {
 
-                if(commonDBContext.AuthContext.Where(x => x.AuthContextId == authContext.AuthContextId && x.Operation == authContext.Operation).Count() == 0)
-                {
-                    commonDBContext.AuthContext.Add(authContext);
-                   
-                }
-                else
-                {
-                    commonDBContext.AuthContext.Update(authContext);
-                }
+
+                commonDBContext.AuthContext.Update(authContext);
 
 
                 await commonDBContext.SaveChangesAsync();
@@ -193,11 +186,11 @@ namespace TodoListService.Controllers
             Dictionary<string, string> dictACRValues = await getAuthenticationContextValues();
 
 
-            IQueryable<AuthContext> authContexts = null;
+            IEnumerable<AuthContext> authContexts = null;
 
             using (var commonDBContext = new CommonDBContext(_configuration))
             {
-                authContexts = commonDBContext.AuthContext.Where(x => x.TenantId == TenantId);
+                authContexts = commonDBContext.AuthContext.Where(x => x.TenantId == TenantId).ToList();
             }
 
             foreach (KeyValuePair<string, string> acr in dictACRValues)
