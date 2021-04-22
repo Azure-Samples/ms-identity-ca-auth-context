@@ -1,10 +1,10 @@
 {
   "Sample": {
-    "Title": "How to secure a Web API built with ASP.NET Core using the Microsoft identity platform (formerly Azure Active Directory for developers)",
-    "Level": 200,
+    "Title": "Use the Conditional Access auth context to perform step-up authentication for high-privilege operations in a Web API",
+    "Level": 400,
     "Client": "ASP.NET Core Web App",
     "Service": "ASP.NET Core Web API",
-    "RepositoryUrl": "active-directory-aspnetcore-webapp-openidconnect-v2",
+    "RepositoryUrl": "ms-identity-ca-auth-context",
     "Endpoint": "AAD v2.0"
   },
 
@@ -14,7 +14,7 @@
   "AADApps": [
     {
       "Id": "service",
-      "Name": "TodoListService-aspnetcore-webapi",
+      "Name": "TodoListService-acrs-webapi",
       "Kind": "WebApi",
       "Audience": "AzureADMyOrg",
       "HomePage": "https://localhost:44351",
@@ -34,7 +34,7 @@
     },
     {
       "Id": "client",
-      "Name": "TodoListClient-aspnetcore-webapi",
+      "Name": "TodoListClient-acrs-webapp",
       "Kind": "WebApp",
       "Audience": "AzureADMyOrg",
       "HomePage": "https://localhost:44321/",

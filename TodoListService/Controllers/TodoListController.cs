@@ -21,10 +21,11 @@ namespace TodoListService.Controllers
     [Route("api/[controller]")]
     public class TodoListController : Controller
     {
-        CommonDBContext _commonDBContext;
+        private CommonDBContext _commonDBContext;
 
         private readonly IHttpContextAccessor _contextAccessor;
-        IConfiguration _configuration;
+        private IConfiguration _configuration;
+
         public TodoListController(IHttpContextAccessor contextAccessor, IConfiguration configuration, CommonDBContext commonDBContext)
         {
             _contextAccessor = contextAccessor;
@@ -36,7 +37,6 @@ namespace TodoListService.Controllers
         [HttpGet]
         public IEnumerable<Todo> Get()
         {
-
             return _commonDBContext.Todo.ToList();
         }
 
@@ -46,7 +46,6 @@ namespace TodoListService.Controllers
         {
             EnsureUserHasElevatedScope(Request.Method);
             return _commonDBContext.Todo.FirstOrDefault(t => t.Id == id);
-
         }
 
         [HttpDelete("{id}")]
@@ -96,10 +95,10 @@ namespace TodoListService.Controllers
         /// <returns></returns>
         public void EnsureUserHasElevatedScope(string method)
         {
-            string authType = _commonDBContext.AuthContext.FirstOrDefault(x => x.Operation == method && x.TenantId == _configuration["AzureAD:TenantId"])?.AuthContextType;
+            string authType = _commonDBContext.AuthContext.FirstOrDefault(x => x.Operation == method && x.TenantId == _configuration["AzureAD:TenantId"])?.AuthContextId;
+
             if (!string.IsNullOrEmpty(authType))
             {
-
                 HttpContext context = this.HttpContext;
 
                 string authenticationContextClassReferencesClaim = "acrs";

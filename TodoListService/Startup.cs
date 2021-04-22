@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace TodoListService
 {
@@ -30,6 +31,15 @@ namespace TodoListService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDistributedMemoryCache();
+
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromSeconds(10);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -56,11 +66,12 @@ namespace TodoListService
                      .AddMicrosoftIdentityWebApp(Configuration, "AzureAd", subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: true)
                          .EnableTokenAcquisitionToCallDownstreamApi()
                              .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
-                             .AddDownstreamWebApi("CalledApi", Configuration.GetSection("CalledApi"))
+                             //.AddDownstreamWebApi("CalledApi", Configuration.GetSection("CalledApi"))
                          .AddInMemoryTokenCaches();
 
             services.AddScoped<AuthenticationContextClassReferencesOperations>();
-
+            
+            // LocalDb database to store Web API settings
             services.AddDbContext<CommonDBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddControllersWithViews(options =>
@@ -103,6 +114,7 @@ namespace TodoListService
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

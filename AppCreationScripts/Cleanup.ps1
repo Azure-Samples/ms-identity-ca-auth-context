@@ -59,16 +59,16 @@ Function Cleanup
     # Removes the applications
     Write-Host "Cleaning-up applications from tenant '$tenantName'"
 
-    Write-Host "Removing 'service' (TodoListService-aspnetcore-webapi) if needed"
+    Write-Host "Removing 'service' (TodoListService-acrs-webapi) if needed"
     try
     {
-        Get-AzureADApplication -Filter "DisplayName eq 'TodoListService-aspnetcore-webapi'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
+        Get-AzureADApplication -Filter "DisplayName eq 'TodoListService-acrs-webapi'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
     }
     catch
     {
-	    Write-Host "Unable to remove the 'TodoListService-aspnetcore-webapi' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
+	    Write-Host "Unable to remove the 'TodoListService-acrs-webapi' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
-    $apps = Get-AzureADApplication -Filter "DisplayName eq 'TodoListService-aspnetcore-webapi'"
+    $apps = Get-AzureADApplication -Filter "DisplayName eq 'TodoListService-acrs-webapi'"
     if ($apps)
     {
         Remove-AzureADApplication -ObjectId $apps.ObjectId
@@ -77,27 +77,27 @@ Function Cleanup
     foreach ($app in $apps) 
     {
         Remove-AzureADApplication -ObjectId $app.ObjectId
-        Write-Host "Removed TodoListService-aspnetcore-webapi.."
+        Write-Host "Removed TodoListService-acrs-webapi.."
     }
     # also remove service principals of this app
     try
     {
-        Get-AzureADServicePrincipal -filter "DisplayName eq 'TodoListService-aspnetcore-webapi'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
+        Get-AzureADServicePrincipal -filter "DisplayName eq 'TodoListService-acrs-webapi'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
     }
     catch
     {
-	    Write-Host "Unable to remove ServicePrincipal 'TodoListService-aspnetcore-webapi' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+	    Write-Host "Unable to remove ServicePrincipal 'TodoListService-acrs-webapi' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
-    Write-Host "Removing 'client' (TodoListClient-aspnetcore-webapi) if needed"
+    Write-Host "Removing 'client' (TodoListClient-acrs-webapp) if needed"
     try
     {
-        Get-AzureADApplication -Filter "DisplayName eq 'TodoListClient-aspnetcore-webapi'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
+        Get-AzureADApplication -Filter "DisplayName eq 'TodoListClient-acrs-webapp'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
     }
     catch
     {
-	    Write-Host "Unable to remove the 'TodoListClient-aspnetcore-webapi' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
+	    Write-Host "Unable to remove the 'TodoListClient-acrs-webapp' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
-    $apps = Get-AzureADApplication -Filter "DisplayName eq 'TodoListClient-aspnetcore-webapi'"
+    $apps = Get-AzureADApplication -Filter "DisplayName eq 'TodoListClient-acrs-webapp'"
     if ($apps)
     {
         Remove-AzureADApplication -ObjectId $apps.ObjectId
@@ -106,16 +106,16 @@ Function Cleanup
     foreach ($app in $apps) 
     {
         Remove-AzureADApplication -ObjectId $app.ObjectId
-        Write-Host "Removed TodoListClient-aspnetcore-webapi.."
+        Write-Host "Removed TodoListClient-acrs-webapp.."
     }
     # also remove service principals of this app
     try
     {
-        Get-AzureADServicePrincipal -filter "DisplayName eq 'TodoListClient-aspnetcore-webapi'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
+        Get-AzureADServicePrincipal -filter "DisplayName eq 'TodoListClient-acrs-webapp'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
     }
     catch
     {
-	    Write-Host "Unable to remove ServicePrincipal 'TodoListClient-aspnetcore-webapi' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+	    Write-Host "Unable to remove ServicePrincipal 'TodoListClient-acrs-webapp' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
 }
 

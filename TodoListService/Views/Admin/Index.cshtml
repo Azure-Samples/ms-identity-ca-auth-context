@@ -7,7 +7,7 @@
 <div id="info">
     Select <b>Create Or Fetch</b> button to perform following steps:
     <ul>
-        <li>Creates auth context in Azure portal if it does not exist.</li>
+        <li>Creates auth context in Azure AD tenant if it does not exist.</li>
         <li>Update database with default values.</li>
     </ul>
 </div>
@@ -22,13 +22,13 @@
     <h3>Update Operation-AuthContext mapping in database.</h3>
     <input type="hidden" asp-for="TenantId" value="@((string)TempData["TenantId"])" />
     <div class="form-group">
-        <label asp-for="Operation" class="control-label"></label>
+        <label asp-for="Operation" class="control-label">Web API operation</label>
         <select class="form-control" asp-for="Operation" asp-items="@((List<SelectListItem>)TempData["Operations"])"></select>
 
     </div>
     <div class="form-group">
-        <label asp-for="AuthContextValue" class="control-label"></label>
-        <select class="form-control" asp-for="AuthContextValue" id="selAuthContextValue" asp-items="@((List<SelectListItem>)TempData["AuthContextValue"])"></select>
+        <label asp-for="AuthContextDisplayName" class="control-label">Auth Context</label>
+        <select class="form-control" asp-for="AuthContextDisplayName" id="selAuthContextValue" asp-items="@((List<SelectListItem>)TempData["AuthContextValues"])"></select>
 
     </div>
     <div class="form-group">

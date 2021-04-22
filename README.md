@@ -6,11 +6,11 @@ products:
   - aspnet-core
   - ms-graph
   - azure-active-directory  
-name: Using Conditional Access Auth Context to step-up authentication in web API
-urlFragment: active-directory-aspnetcore-webapp-openidconnect-v2
-description: "This sample demonstrates a ASP.NET Core Web App calling a ASP.NET Core Web API that is secured using Azure AD"
+name: Use the Conditional Access auth context to perform step-up authentication for high-privilege operations in a Web API
+urlFragment: ms-identity-ca-auth-context
+description: "This sample demonstrates using the Conditional Access auth context to perform step-up authentication for high-privilege and sensitive operations in a web API."
 ---
-# Using Conditional Access Auth Context to step-up authentication in web API
+# Use the Conditional Access auth context to perform step-up authentication for high-privilege operations in a Web API
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -28,12 +28,13 @@ description: "This sample demonstrates a ASP.NET Core Web App calling a ASP.NET 
 
 ## Overview
 
-This code sample uses the Conditional Access Auth Context to demand a higher bar of authentication for certain high-privileged operations in a Web API.
+This code sample uses the Conditional Access Auth Context to demand a higher bar of authentication for certain high-privileged and sensitive operations in a Web API.
 
 ## Scenario
 
-1. The client ASP.NET Core Web App uses the Microsoft Authentication Library (MSAL) to sign-in and obtain a JWT access token from **Azure AD**.
-2. The access token is used as a bearer token to authorize the user to call the ASP.NET Core Web API protected **Azure AD**.
+1. The client ASP.NET Core Web App uses the [Microsoft.Identity.Web](https://aka.ms/microsoft-identity-web) and Microsoft Authentication Library (MSAL) to sign-in and obtain a JWT access token from **Azure AD**.
+1. The access token is used as a bearer token to authorize the user to call the ASP.NET Core Web API protected **Azure AD**.
+1. For sensitive operations, the Web API can be configured to demand step-up authentication, like MFA, from the signed-in user
 
 ![Overview](./ReadmeFiles/topology.png)
 
@@ -42,10 +43,11 @@ This code sample uses the Conditional Access Auth Context to demand a higher bar
 - Either [Visual Studio](https://visualstudio.microsoft.com/downloads/) or [Visual Studio Code](https://code.visualstudio.com/download) and [.NET Core SDK](https://www.microsoft.com/net/learn/get-started)
 - An **Azure AD** tenant. For more information see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant)
 - A user account in your **Azure AD** tenant. This sample will not work with a **personal Microsoft account**. Therefore, if you signed in to the [Azure portal](https://portal.azure.com) with a personal account and have never created a user account in your directory before, you need to do that now.
+- [Azure AD premium P1](https://azure.microsoft.com/pricing/details/active-directory/) is required to work with Conditional Access policies.
 
 ## Setup
 
-### Clone or download this repository
+### Step 1: Clone or download this repository
 
 From your shell or command line:
 
@@ -56,6 +58,16 @@ git clone https://github.com/Azure-Samples/ms-identity-ca-auth-context.git
 or download and extract the repository .zip file.
 
 > :warning: To avoid path length limitations on Windows, we recommend cloning into a directory near the root of your drive.
+
+### Step 2: Install project dependencies
+
+```console
+    dotnet restore
+```
+
+```console
+    dotnet restore
+```
 
 ### Register the sample application(s) with your Azure Active Directory tenant
 
@@ -99,12 +111,12 @@ As a first step you'll need to:
 1. Sign in to the [Azure portal](https://portal.azure.com).
 1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
 
-### Register the service app (TodoListService-aspnetcore-webapi)
+### Register the service app (TodoListService-acrs-webapi)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `TodoListService-aspnetcore-webapi`.
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `TodoListService-acrs-webapi`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
    - In the **Redirect URI (optional)** section, select **Web** in the combo-box and enter the following redirect URI: `https://localhost:44351/`.
      > Note that there are more than one redirect URIs used in this sample. You'll need to add them from the **Authentication** tab later after the app has been created successfully.
@@ -136,14 +148,14 @@ The first thing that we need to do is to declare the unique [resource](https://d
    - Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
         - For **Scope name**, use `access_as_user`.
         - Select **Admins and users** options for **Who can consent?**.
-        - For **Admin consent display name** type `Access TodoListService-aspnetcore-webapi`.
-        - For **Admin consent description** type `Allows the app to access TodoListService-aspnetcore-webapi as the signed-in user.`
-        - For **User consent display name** type `Access TodoListService-aspnetcore-webapi`.
-        - For **User consent description** type `Allow the application to access TodoListService-aspnetcore-webapi on your behalf.`
+        - For **Admin consent display name** type `Access TodoListService-acrs-webapi`.
+        - For **Admin consent description** type `Allows the app to access TodoListService-acrs-webapi as the signed-in user.`
+        - For **User consent display name** type `Access TodoListService-acrs-webapi`.
+        - For **User consent description** type `Allow the application to access TodoListService-acrs-webapi on your behalf.`
         - Keep **State** as **Enabled**.
         - Select the **Add scope** button on the bottom to save this scope.
 
-#### Configure the service app (TodoListService-aspnetcore-webapi) to use your app registration
+#### Configure the service app (TodoListService-acrs-webapi) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
@@ -152,15 +164,15 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `TodoListService\appsettings.json` file.
 1. Find the key `Domain` and replace the existing value with your Azure AD tenant name.
 1. Find the key `TenantId` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `TodoListService-aspnetcore-webapi` app copied from the Azure portal.
-1. Find the key `ClientSecret` and replace the existing value with the key you saved during the creation of `TodoListService-aspnetcore-webapi` copied from the Azure portal.
+1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `TodoListService-acrs-webapi` app copied from the Azure portal.
+1. Find the key `ClientSecret` and replace the existing value with the key you saved during the creation of `TodoListService-acrs-webapi` copied from the Azure portal.
 
-### Register the client app (TodoListClient-aspnetcore-webapi)
+### Register the client app (TodoListClient-acrs-webapp)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `TodoListClient-aspnetcore-webapi`.
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `TodoListClient-acrs-webapp`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
    - In the **Redirect URI (optional)** section, select **Web** in the combo-box and enter the following redirect URI: `https://localhost:44321/`.
      > Note that there are more than one redirect URIs used in this sample. You'll need to add them from the **Authentication** tab later after the app has been created successfully.
@@ -181,11 +193,11 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
    - Select the **Add a permission** button and then,
    - Ensure that the **My APIs** tab is selected.
-   - In the list of APIs, select the API `TodoListService-aspnetcore-webapi`.
-   - In the **Delegated permissions** section, select the **Access 'TodoListService-aspnetcore-webapi'** in the list. Use the search box if necessary.
+   - In the list of APIs, select the API `TodoListService-acrs-webapi`.
+   - In the **Delegated permissions** section, select the **Access 'TodoListService-acrs-webapi'** in the list. Use the search box if necessary.
    - Select the **Add permissions** button at the bottom.
 
-#### Configure the client app (TodoListClient-aspnetcore-webapi) to use your app registration
+#### Configure the client app (TodoListClient-acrs-webapp) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
@@ -194,10 +206,10 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `TodoListClient\appsettings.json` file.
 1. Find the key `Domain` and replace the existing value with your Azure AD tenant name.
 1. Find the key `TenantId` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `TodoListClient-aspnetcore-webapi` app copied from the Azure portal.
-1. Find the key `ClientSecret` and replace the existing value with the key you saved during the creation of `TodoListClient-aspnetcore-webapi` copied from the Azure portal.
+1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `TodoListClient-acrs-webapp` app copied from the Azure portal.
+1. Find the key `ClientSecret` and replace the existing value with the key you saved during the creation of `TodoListClient-acrs-webapp` copied from the Azure portal.
 1. Find the key `TodoListScope` and replace the existing value with Scope.
-1. Find the key `TodoListBaseAddress` and replace the existing value with the base address of `TodoListService-aspnetcore-webapi` (by default `https://localhost:44351`).
+1. Find the key `TodoListBaseAddress` and replace the existing value with the base address of `TodoListService-acrs-webapi` (by default `https://localhost:44351`).
 
 ## Running the sample
 
@@ -219,44 +231,42 @@ dotnet run
 
 ## Explore the sample
 
-### For Web API
+### Configure the Web API
 
-1. Browse `https://localhost:44351` and sign-in using Admin account. Go to Admin page.
+1. Browse `https://localhost:44351` and sign-in using Admin account. Go to Admin page of the **Web API**.
 
     ![Overview](./ReadmeFiles/Admin.png)
-1. Select **CreateOrFetch** button.
+1. As a first step, you will ensure that a set of Auth Context is already available in this tenant. Click the **CreateOrFetch** button to check if they exist, if not, the code will create three auth context entries for you. These three entires are named `Low`, `Medium` and `High`.
 
-    ![Overview](./ReadmeFiles/Create-Fetch_Click.png)
+> Note: The Graph permission, **Policy.ReadWrite.ConditionalAccess** is required for creating new records. In production, the permission, **Policy.Read.ConditionalAccess** should be sufficient to read existing values.
+![Overview](./ReadmeFiles/Create-Fetch_Click.png)
 
-    Select operation and Authentication Value from dropdown and select **Update**.
+Select an operation in the Web API and an `Authentication Context` value to apply and select **Update**. We advise you use the same aut context value if possible as this esnures that the suer is redirected to Azure AD just once to perform the step-up authN.
 
-1. Go to `View Details page to get details from database.
+1. Go to `View Details page to get details of data saved on the Web API side in its database.
 
     ![Overview](./ReadmeFiles/ViewDetails.png)
+The web API is now ready to challenge users for step-up auth for the selected operations.
 
-### For Azure portal
+### Configure a Conditional Access policy to use auth context in Azure portal
 
 1. Navigate to Azure Active Directory> Security > Conditional Access
-1. Select **New policy** and go to **Cloud apps or actions**. In dropdown select **Authentication context (preview)**, newly created policies will be displayed.
+1. Select **New policy** and go to **Cloud apps or actions**. In dropdown select **Authentication context (preview)**, newly created auth context values will be provided for you to be used in this CA policy.
 
     ![Overview](./ReadmeFiles/AuthContext.png)
 
-    Select the value and create the policy as required.
+    Select the value and create the policy as required. For example, you might want the user to satisfy a MFA challenge if the auth context value is 'Medium'.
 
-### Web App
+### Test in the Web App
 
 1. Browse `https://localhost:44321` and sign-in.
 1. Select `TodoList` page and perform the operations.
 
     ![Overview](./ReadmeFiles/ToDoList.png)
 
-If CA policy is enabled it will ask to perform the required step.
+If an operation was saved for a certain authContext and there is a CA policy configured and enabled, the user  will be redirected to Azure AD and ask to perform the required step(s) like MFA.
 
-> :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../issues) page.
-
-## We'd love your feedback!
-
-Were we successful in addressing your learning objective? Consider taking a moment to [share your experience with us](Enter_Survey_Form_Link).
+> :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../issues) page.
 
 ## About the code
 
@@ -283,7 +293,7 @@ Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get supp
 Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
 Make sure that your questions or comments are tagged with [`azure-active-directory` `azure-ad-b2c` `ms-identity` `adal` `msal`].
 
-If you find a bug in the sample, raise the issue on [GitHub Issues](../../../issues).
+If you find a bug in the sample, raise the issue on [GitHub Issues](../../issues).
 
 To provide feedback on or suggest features for Azure Active Directory, visit [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
 
