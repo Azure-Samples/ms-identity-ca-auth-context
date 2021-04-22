@@ -1,10 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
+
 //using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TodoListService.Models
 {
@@ -30,8 +27,7 @@ namespace TodoListService.Models
             optionsBuilder.UseSqlServer(connstr);
         }
 
-
-        public DbSet<Todo> Todo{get;set;}
+        public DbSet<Todo> Todo { get; set; }
         public DbSet<AuthContext> AuthContext { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
