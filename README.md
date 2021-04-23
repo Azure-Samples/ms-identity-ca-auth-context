@@ -238,12 +238,13 @@ dotnet run
     ![Overview](./ReadmeFiles/Admin.png)
 1. As a first step, you will ensure that a set of Auth Context is already available in this tenant. Click the **CreateOrFetch** button to check if they exist, if not, the code will create three auth context entries for you. These three entires are named `Low`, `Medium` and `High`.
 
-> Note: The Graph permission, **Policy.ReadWrite.ConditionalAccess** is required for creating new records. In production, the permission, **Policy.Read.ConditionalAccess** should be sufficient to read existing values.
-![Overview](./ReadmeFiles/Create-Fetch_Click.png)
+    > Note: The Graph permission, **Policy.ReadWrite.ConditionalAccess** is required for creating new records. In production, the permission, **Policy.Read.ConditionalAccess** should be sufficient to read existing values.
 
-Select an operation in the Web API and an `Authentication Context` value to apply and select **Update**. We advise you use the same aut context value if possible as this esnures that the suer is redirected to Azure AD just once to perform the step-up authN.
+    ![Overview](./ReadmeFiles/Create-Fetch_Click.png)
 
-1. Go to `View Details page to get details of data saved on the Web API side in its database.
+    Select an operation in the Web API and an `Authentication Context` value to apply and select **SaveOrUpdate**. We advise you use the same auth context value if possible as this ensures that the suer is redirected to Azure AD just once to perform the step-up authN.
+
+1. Go to `View Details page to get details of data saved on the Web API side in its database. You can select **Delete** if you need to delete the mapping from database.
 
     ![Overview](./ReadmeFiles/ViewDetails.png)
 The web API is now ready to challenge users for step-up auth for the selected operations.
@@ -270,8 +271,207 @@ If an operation was saved for a certain authContext and there is a CA policy con
 
 ## About the code
 
-> - Describe where the code uses auth libraries, or calls the graph
-> - Describe specific aspects (e.g. caching, validation etc.)
+### Code for the Web API (ToDoListService)
+
+1. In `Startup.cs`, below lines of code enables Microsoft identity platform endpoint to protect the Web API.
+
+    ```csharp
+    services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
+    ```
+
+    Below lines of code enables Microsoft identity platform endpoint to authenticate the users.
+
+    ```csharp
+    services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+             .AddMicrosoftIdentityWebApp(Configuration, "AzureAd", subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: true)
+                 .EnableTokenAcquisitionToCallDownstreamApi()
+                     .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
+                 .AddInMemoryTokenCaches();
+    ```
+
+1. In `AdminController.cs`, the method **GetAuthenticationContextValues**  returns a default set of AuthN context values for the app to work with, either from Graph or a default hard coded set.
+
+    ```csharp
+    private async Task<Dictionary<string, string>> GetAuthenticationContextValues()
+    {
+         Dictionary<string, string> dictACRValues = new Dictionary<string, string>()
+            {
+                {"C1","Regular privilege" },
+                {"C2","Medium-high privilege" },
+                {"C3","High privilege" }
+        };
+
+        string sessionKey = "ACRS";
+
+        if (HttpContext.Session.Get<Dictionary<string, string>>(sessionKey) != default)
+        {
+            dictACRValues = HttpContext.Session.Get<Dictionary<string, string>>(sessionKey);
+        }
+        else
+        {
+            var existingAuthContexts = await _authContextClassReferencesOperations.ListAuthenticationContextClassReferencesAsync();
+
+            if (existingAuthContexts.Count() > 0)                 
+            {
+                dictACRValues.Clear();
+
+                foreach (var authContext in existingAuthContexts)
+                {
+                    dictACRValues.Add(authContext.Id, authContext.DisplayName);
+                }
+
+                HttpContext.Session.Set<Dictionary<string, string>>(sessionKey, dictACRValues);
+            }
+        }
+        return dictACRValues;
+    }
+    ```
+
+    **CreateOrFetch** method checks if auth context exists then retrieve the list from graph by calling **ListAuthenticationContextClassReferencesAsync** method else call **CreateAuthContextViaGraph** to create the auth context.
+
+    ```csharp
+    public async Task<List<Beta.AuthenticationContextClassReference>> CreateOrFetch()
+    {
+        var lstPolicies = await _authContextClassReferencesOperations.ListAuthenticationContextClassReferencesAsync();
+    
+        if (lstPolicies?.Count > 0)
+        {
+            return lstPolicies;
+        }
+        else
+        {
+            await CreateAuthContextViaGraph();
+        }
+        return lstPolicies;
+    }
+    ```
+
+1. `AuthenticationContextClassReferencesOperations.cs` contains methods that call graph to perform various operations. In current sample we have used create and get methods. **CreateAuthenticationContextClassReferenceAsync** method creates the auth context:
+
+    ```csharp
+   public async Task<Beta.AuthenticationContextClassReference> CreateAuthenticationContextClassReferenceAsync(string id, string displayName, string description, bool IsAvailable)
+    {
+        Beta.AuthenticationContextClassReference newACRObject = null;
+    
+        try
+        {
+            newACRObject = await _graphServiceClient.Identity.ConditionalAccess.AuthenticationContextClassReferences.Request().AddAsync(new Beta.AuthenticationContextClassReference
+            {
+                Id = id,
+                DisplayName = displayName,
+                Description = description,
+                IsAvailable = IsAvailable,
+                ODataType = null
+            });
+        }
+        catch (ServiceException e)
+        {
+            Console.WriteLine("We could not add a new ACR: " + e.Error.Message);
+            return null;
+        }
+    
+        return newACRObject;
+    }
+    ```
+
+    **ListAuthenticationContextClassReferencesAsync** method get the existing auth context values from graph.
+
+    ```csharp
+    public async Task<List<Beta.AuthenticationContextClassReference>> ListAuthenticationContextClassReferencesAsync()
+    {
+        List<Beta.AuthenticationContextClassReference> allAuthenticationContextClassReferences = new List<Beta.AuthenticationContextClassReference>();
+    
+        try
+        {
+            Beta.IConditionalAccessRootAuthenticationContextClassReferencesCollectionPage authenticationContextClassreferences = await _graphServiceClient.Identity.ConditionalAccess.AuthenticationContextClassReferences.Request().GetAsync();
+    
+            if (authenticationContextClassreferences != null)
+            {
+                allAuthenticationContextClassReferences = await ProcessIAuthenticationContextClassReferenceRootPoliciesCollectionPage(authenticationContextClassreferences);
+            }
+        }
+        catch (ServiceException e)
+        {
+            Console.WriteLine($"We could not retrieve the existing ACRs: {e}");
+            if (e.InnerException != null)
+            {
+                var exp = (MicrosoftIdentityWebChallengeUserException)e.InnerException;
+                throw exp;
+            }
+            throw e;
+        }
+    
+        return allAuthenticationContextClassReferences;
+    }
+    ```
+
+1. In `TodoListController.cs`, the method **EnsureUserHasElevatedScope** retrieves the acrsValue from database for the request method. Then checks if the access token has acrs claim with acrsValue. If does not exists then adds WWW-Authenticate and throws UnauthorizedAccessException exception.
+
+    ```csharp
+    public void EnsureUserHasElevatedScope(string method)
+    {
+        string authType = _commonDBContext.AuthContext.FirstOrDefault(x => x.Operation == method && x.TenantId == _configuration["AzureAD:TenantId"])?.AuthContextId;
+    
+        if (!string.IsNullOrEmpty(authType))
+        {
+            HttpContext context = this.HttpContext;
+    
+            string authenticationContextClassReferencesClaim = "acrs";
+    
+            if (context == null || context.User == null || context.User.Claims == null || !context.User.Claims.Any())
+            {
+                throw new ArgumentNullException("No Usercontext is available to pick claims from");
+            }
+    
+            Claim acrsClaim = context.User.FindFirst(authenticationContextClassReferencesClaim);
+    
+            if (acrsClaim == null || acrsClaim.Value != authType)
+            {
+                string clientId = _configuration.GetSection("AzureAd").GetSection("ClientId").Value;
+                var base64str = Convert.ToBase64String(Encoding.UTF8.GetBytes("{\"access_token\":{\"acrs\":{\"essential\":true,\"value\":\"" + authType + "\"}}}"));
+    
+                context.Response.Headers.Append("WWW-Authenticate", $"Bearer realm=\"\", authorization_uri=\"https://login.microsoftonline.com/common/oauth2/authorize\", client_id=\"" + clientId + "\", error=\"insufficient_claims\", claims=\"" + base64str + "\", cc_type=\"authcontext\"");
+                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                string message = string.Format(CultureInfo.InvariantCulture, "The presented access tokens had insufficient claims. Please request for claims requested in the WWW-Authentication header and try again.");
+                context.Response.WriteAsync(message);
+                context.Response.CompleteAsync();
+                throw new UnauthorizedAccessException(message);
+            }
+        }
+    }
+    ```
+
+### Code for the Web App (TodoListClient)
+
+Methods in `TodoListController.cs` challenges the user if exception is thrown from Web API, as shown in below method:
+
+```csharp
+public async Task<ActionResult> Create([Bind("Title,Owner")] Todo todo)
+{
+    try
+    {
+        await _todoListService.AddAsync(todo);
+    }
+    catch (WebApiMsalUiRequiredException hex)
+    {
+        try
+        {
+            var claimChallenge = ExtractAuthenticationHeader.ExtractHeaderValues(hex);
+            _consentHandler.ChallengeUser(new string[] { "user.read" }, claimChallenge);
+
+            return new EmptyResult();
+
+        }
+        catch (Exception ex)
+        {
+            _consentHandler.HandleException(ex);
+        }
+
+        Console.WriteLine(hex.Message);
+    }
+    return RedirectToAction("Index");
+}
+```
 
 ## More information
 
