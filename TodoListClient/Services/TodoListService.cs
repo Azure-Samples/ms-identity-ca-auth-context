@@ -60,8 +60,9 @@ namespace TodoListClient.Services
 
                 return todo;
             }
+         
+            throw new WebApiMsalUiRequiredException($"Unexpected status code in the HttpResponseMessage: {response.StatusCode}.", response);
 
-            throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}.");
         }
 
         public async Task DeleteAsync(int id)
@@ -74,8 +75,7 @@ namespace TodoListClient.Services
             {
                 return;
             }
-
-            throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}.");
+            throw new WebApiMsalUiRequiredException($"Unexpected status code in the HttpResponseMessage: {response.StatusCode}.", response);
         }
 
         public async Task<Todo> EditAsync(Todo todo)
@@ -101,6 +101,8 @@ namespace TodoListClient.Services
         {
             await PrepareAuthenticatedClient();
             var response = await _httpClient.GetAsync($"{ _TodoListBaseAddress}/api/todolist");
+            var responseContent = response.Content.ReadAsStringAsync().Result;
+
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var content = await response.Content.ReadAsStringAsync();
@@ -108,8 +110,8 @@ namespace TodoListClient.Services
 
                 return todolist;
             }
-
             throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}.");
+
         }
 
         private async Task PrepareAuthenticatedClient()
@@ -131,8 +133,9 @@ namespace TodoListClient.Services
 
                 return todo;
             }
+         
+            throw new WebApiMsalUiRequiredException($"Unexpected status code in the HttpResponseMessage: {response.StatusCode}.", response);
 
-            throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}.");
         }
     }
 }

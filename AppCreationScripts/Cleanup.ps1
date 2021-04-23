@@ -11,7 +11,7 @@ param(
 
 
 if ($null -eq (Get-Module -ListAvailable -Name "AzureAD")) { 
-    Install-Module "AzureAD" -Scope CurrentUser 
+    Install-Module "AzureAD" -Scope CurrentUser                                            
 } 
 Import-Module AzureAD
 $ErrorActionPreference = "Stop"
@@ -59,9 +59,16 @@ Function Cleanup
     # Removes the applications
     Write-Host "Cleaning-up applications from tenant '$tenantName'"
 
-    Write-Host "Removing 'service' (TodoListService-aspnetcore-webapi) if needed"
-    Get-AzureADApplication -Filter "DisplayName eq 'TodoListService-aspnetcore-webapi'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
-    $apps = Get-AzureADApplication -Filter "DisplayName eq 'TodoListService-aspnetcore-webapi'"
+    Write-Host "Removing 'service' (TodoListService-acrs-webapi) if needed"
+    try
+    {
+        Get-AzureADApplication -Filter "DisplayName eq 'TodoListService-acrs-webapi'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
+    }
+    catch
+    {
+	    Write-Host "Unable to remove the 'TodoListService-acrs-webapi' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
+    }
+    $apps = Get-AzureADApplication -Filter "DisplayName eq 'TodoListService-acrs-webapi'"
     if ($apps)
     {
         Remove-AzureADApplication -ObjectId $apps.ObjectId
@@ -70,14 +77,27 @@ Function Cleanup
     foreach ($app in $apps) 
     {
         Remove-AzureADApplication -ObjectId $app.ObjectId
-        Write-Host "Removed TodoListService-aspnetcore-webapi.."
+        Write-Host "Removed TodoListService-acrs-webapi.."
     }
     # also remove service principals of this app
-    Get-AzureADServicePrincipal -filter "DisplayName eq 'TodoListService-aspnetcore-webapi'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
-    
-    Write-Host "Removing 'client' (TodoListClient-aspnetcore-webapi) if needed"
-    Get-AzureADApplication -Filter "DisplayName eq 'TodoListClient-aspnetcore-webapi'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
-    $apps = Get-AzureADApplication -Filter "DisplayName eq 'TodoListClient-aspnetcore-webapi'"
+    try
+    {
+        Get-AzureADServicePrincipal -filter "DisplayName eq 'TodoListService-acrs-webapi'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
+    }
+    catch
+    {
+	    Write-Host "Unable to remove ServicePrincipal 'TodoListService-acrs-webapi' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+    }
+    Write-Host "Removing 'client' (TodoListClient-acrs-webapp) if needed"
+    try
+    {
+        Get-AzureADApplication -Filter "DisplayName eq 'TodoListClient-acrs-webapp'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
+    }
+    catch
+    {
+	    Write-Host "Unable to remove the 'TodoListClient-acrs-webapp' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
+    }
+    $apps = Get-AzureADApplication -Filter "DisplayName eq 'TodoListClient-acrs-webapp'"
     if ($apps)
     {
         Remove-AzureADApplication -ObjectId $apps.ObjectId
@@ -86,11 +106,17 @@ Function Cleanup
     foreach ($app in $apps) 
     {
         Remove-AzureADApplication -ObjectId $app.ObjectId
-        Write-Host "Removed TodoListClient-aspnetcore-webapi.."
+        Write-Host "Removed TodoListClient-acrs-webapp.."
     }
     # also remove service principals of this app
-    Get-AzureADServicePrincipal -filter "DisplayName eq 'TodoListClient-aspnetcore-webapi'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
-    
+    try
+    {
+        Get-AzureADServicePrincipal -filter "DisplayName eq 'TodoListClient-acrs-webapp'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
+    }
+    catch
+    {
+	    Write-Host "Unable to remove ServicePrincipal 'TodoListClient-acrs-webapp' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+    }
 }
 
 Cleanup -Credential $Credential -tenantId $TenantId
