@@ -66,11 +66,10 @@ namespace TodoListService
                      .AddMicrosoftIdentityWebApp(Configuration, "AzureAd", subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: true)
                          .EnableTokenAcquisitionToCallDownstreamApi()
                              .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
-                             //.AddDownstreamWebApi("CalledApi", Configuration.GetSection("CalledApi"))
                          .AddInMemoryTokenCaches();
 
             services.AddScoped<AuthenticationContextClassReferencesOperations>();
-            
+
             // LocalDb database to store Web API settings
             services.AddDbContext<CommonDBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 

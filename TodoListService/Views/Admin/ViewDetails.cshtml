@@ -21,6 +21,9 @@
                 <th align="left">
                     Operation
                 </th>
+                <th align="left">
+                    Action
+                </th>
             </tr>
         </thead>
         @foreach (var item in Model)
@@ -38,6 +41,10 @@
                     </td>
                     <td>
                         @item.Operation
+                    </td>
+                    <td>
+                        @Html.ActionLink("Delete", "Delete", new { id = @item.AuthContextId })
+
                     </td>
                 </tr>
             </tbody>

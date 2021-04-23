@@ -42,15 +42,9 @@ namespace TodoListService.Controllers
         {
             // Defaults
             IList<SelectListItem> AuthContextValues = new List<SelectListItem>();
-            //{
-            //    new SelectListItem{Text= dictACRValues["C1"]},
-            //    new SelectListItem{Text= dictACRValues["C2"]},
-            //    new SelectListItem { Text = dictACRValues["C3"]}
-            //};
 
             IEnumerable<SelectListItem> Operations = new List<SelectListItem>
                 {
-                    new SelectListItem{Text= "Get"},
                     new SelectListItem{Text= "Post"},
                     new SelectListItem{ Text= "Delete"}
                 };
@@ -131,9 +125,36 @@ namespace TodoListService.Controllers
             return View(authContexts);
         }
 
+        public ActionResult Delete(string id)
+        {
+            AuthContext authContext = null;
+            using (var commonDBContext = new CommonDBContext(_configuration))
+            {
+                authContext = commonDBContext.AuthContext.FirstOrDefault(x => x.AuthContextId == id && x.TenantId == TenantId);
+            }
+            return View(authContext);
+        }
+
+        /// <summary>
+        /// Delete the data from database.
+        /// </summary>
+        /// <param name="authContext"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult Delete([Bind("TenantId,AuthContextId,AuthContextDisplayName,Operation")] AuthContext authContext)
+        {
+            using (var commonDBContext = new CommonDBContext(_configuration))
+            {
+                commonDBContext.AuthContext.Remove(authContext);
+                commonDBContext.SaveChanges();
+            }
+
+            return RedirectToAction("ViewDetails");
+        }
+
         /// <summary>
         /// Checks if AuthenticationContext exists.
-        /// If not then create with default values and save in database.
+        /// If not then create with default values.
         /// </summary>
         /// <returns></returns>
         [AuthorizeForScopes(ScopeKeySection = "GraphBeta:Scopes")]
@@ -154,72 +175,43 @@ namespace TodoListService.Controllers
         }
 
         /// <summary>
-        /// Update the database to save mapping of operation and auth context.
-        /// </summary>
-        /// <param name="authContext"></param>
-        /// <returns></returns>
-        public async Task UpdateAuthContextDB(AuthContext authContext)
-        {
-            Dictionary<string, string> dictACRValues = await getAuthenticationContextValues();
-            authContext.AuthContextDisplayName = dictACRValues.FirstOrDefault(x => x.Key == authContext.AuthContextId).Value;
-
-            using (var commonDBContext = new CommonDBContext(_configuration))
-            {
-
-
-                commonDBContext.AuthContext.Update(authContext);
-
-
-                await commonDBContext.SaveChangesAsync();
-            }
-
-        }
-
-
-        /// <summary>
         /// Create Authentication context for the tenant.
-        /// Save the values in database.
         /// </summary>
         /// <returns></returns>
         private async Task CreateAuthContextViaGraph()
         {
             Dictionary<string, string> dictACRValues = await getAuthenticationContextValues();
 
-
-            IEnumerable<AuthContext> authContexts = null;
-
-            using (var commonDBContext = new CommonDBContext(_configuration))
-            {
-                authContexts = commonDBContext.AuthContext.Where(x => x.TenantId == TenantId).ToList();
-            }
-
             foreach (KeyValuePair<string, string> acr in dictACRValues)
             {
-                if (authContexts?.Count() < dictACRValues.Count())
-                {
-                    await AddInDB(acr.Key, TenantId, acr.Value);
-                }
                 await _authContextClassReferencesOperations.CreateAuthenticationContextClassReferenceAsync(acr.Key, acr.Value, $"A new Authentication Context Class Reference created at {DateTime.Now.ToString()}", true);
             }
         }
 
         /// <summary>
-        /// Save the values in database.
+        /// Save the Operation and Auth Context mapping in database.
+        /// If an Operation is already mapped with Auth Context then updates the mapping.
         /// </summary>
         /// <param name="id"></param>
         /// <param name="tenantId"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        private async Task AddInDB(string id, string tenantId, string value)
+        public async Task SaveOrUpdateAuthContextDB(AuthContext authContext)
         {
-            AuthContext authContext = new AuthContext();
-            authContext.TenantId = tenantId;
-            authContext.AuthContextId = id;
-            authContext.AuthContextDisplayName = value;
+            Dictionary<string, string> dictACRValues = await getAuthenticationContextValues();
+            authContext.AuthContextDisplayName = dictACRValues.FirstOrDefault(x => x.Key == authContext.AuthContextId).Value;
 
             using (var commonDBContext = new CommonDBContext(_configuration))
             {
-                commonDBContext.AuthContext.Add(authContext);
+                var isExists = commonDBContext.AuthContext.AsNoTracking().FirstOrDefault(x => x.TenantId == TenantId && x.Operation == authContext.Operation);
+                if (isExists == null)
+                {
+                    commonDBContext.AuthContext.Add(authContext);
+                }
+                else
+                {
+                    commonDBContext.AuthContext.Update(authContext);
+                }
                 await commonDBContext.SaveChangesAsync();
             }
         }
