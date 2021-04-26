@@ -108,7 +108,7 @@ namespace TodoListService.Controllers
                     throw new ArgumentNullException("No Usercontext is available to pick claims from");
                 }
 
-                Claim acrsClaim = context.User.FindFirst(authenticationContextClassReferencesClaim);
+                Claim acrsClaim = context.User.FindAll(authenticationContextClassReferencesClaim).FirstOrDefault(x => x.Value == authType);
 
                 if (acrsClaim == null || acrsClaim.Value != authType)
                 {

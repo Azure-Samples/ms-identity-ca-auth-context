@@ -423,7 +423,7 @@ If an operation was saved for a certain authContext and there is a CA policy con
                 throw new ArgumentNullException("No Usercontext is available to pick claims from");
             }
     
-            Claim acrsClaim = context.User.FindFirst(authenticationContextClassReferencesClaim);
+            Claim acrsClaim = context.User.FindAll(authenticationContextClassReferencesClaim).FirstOrDefault(x => x.Value == authType);
     
             if (acrsClaim == null || acrsClaim.Value != authType)
             {
