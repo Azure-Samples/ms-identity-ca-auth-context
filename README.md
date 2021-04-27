@@ -28,11 +28,11 @@ description: "This sample demonstrates using the Conditional Access auth context
 
 ## Overview
 
-This code sample uses the Conditional Access Auth Context to demand a higher bar of authentication for certain high-privileged and sensitive operations in a Web API.
+This code sample uses the Conditional Access Auth Context to demand a higher bar of authentication for certain high-privileged and sensitive operations in a [protected Web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-overview).
 
 ## Scenario
 
-1. The client ASP.NET Core Web App uses the [Microsoft.Identity.Web](https://aka.ms/microsoft-identity-web) and Microsoft Authentication Library (MSAL) to sign-in and obtain a JWT access token from **Azure AD**.
+1. The client ASP.NET Core Web App uses the [Microsoft.Identity.Web](https://aka.ms/microsoft-identity-web) and Microsoft Authentication Library for .NET ([MSAL.NET](https://aka.ms/msal-net)) to sign-in and obtain a JWT access token from **Azure AD**.
 1. The access token is used as a bearer token to authorize the user to call the ASP.NET Core Web API protected **Azure AD**.
 1. For sensitive operations, the Web API can be configured to demand step-up authentication, like MFA, from the signed-in user
 
@@ -137,7 +137,7 @@ As a first step you'll need to:
    - Select the **Add a permission** button and then,
    - Ensure that the **Microsoft APIs** tab is selected.
    - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-   - In the **Delegated permissions** section, select the **Policy.Read.ConditionalAccess**, **Policy.ReadWrite.ConditionalAccess** in the list. Use the search box if necessary.
+   - In the **Delegated permissions** section, select the **Policy.Read.ConditionalAccess**, **Policy.ReadWrite.ConditionalAccess** in the list. Use the search box if necessary. `Note: The Graph permission, **Policy.ReadWrite.ConditionalAccess** is required for creating new auth context records by this sample. In production, the permission, **Policy.Read.ConditionalAccess** should be sufficient to read existing values and thus is recommended.`
    - Select the **Add permissions** button at the bottom.
    - Select **Grant admin consent for (your tenant)**.
 1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can declare the parameters to expose this app as an API for which client applications can obtain [access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) for.
@@ -154,6 +154,29 @@ The first thing that we need to do is to declare the unique [resource](https://d
         - For **User consent description** type `Allow the application to access TodoListService-acrs-webapi on your behalf.`
         - Keep **State** as **Enabled**.
         - Select the **Add scope** button on the bottom to save this scope.
+1. Change the app manifest of the API  to request the AuthenticationContextClassReferences `acrs` and client capabilities claim `xms_cc` claim.
+
+```json
+"optionalClaims": 
+{
+  "accessToken": [
+    {
+      "additionalProperties": [],
+      "essential": false,
+      "name": "xms_cc",
+      "source": null
+    },
+    {
+      "additionalProperties": [],
+      "essential": false,
+      "name": "acrs",
+      "source": null
+    }
+  ],
+  "idToken": [],
+  "saml2Token": []
+}
+```
 
 #### Configure the service app (TodoListService-acrs-webapi) to use your app registration
 
@@ -238,7 +261,7 @@ dotnet run
     ![Overview](./ReadmeFiles/Admin.png)
 1. As a first step, you will ensure that a set of Auth Context is already available in this tenant. Click the **CreateOrFetch** button to check if they exist, if not, the code will create three auth context entries for you. These three entires are named `Low`, `Medium` and `High`.
 
-    > Note: The Graph permission, **Policy.ReadWrite.ConditionalAccess** is required for creating new records. In production, the permission, **Policy.Read.ConditionalAccess** should be sufficient to read existing values.
+    > Note: The Graph permission, **Policy.ReadWrite.ConditionalAccess** is required for creating new records. In production, the permission, **Policy.Read.ConditionalAccess** should be sufficient to read existing values and thus is recommended.
 
     ![Overview](./ReadmeFiles/Create-Fetch_Click.png)
 
@@ -346,7 +369,7 @@ If an operation was saved for a certain authContext and there is a CA policy con
     }
     ```
 
-1. `AuthenticationContextClassReferencesOperations.cs` contains methods that call graph to perform various operations. In current sample we have used create and get methods. **CreateAuthenticationContextClassReferenceAsync** method creates the auth context:
+1. `AuthenticationContextClassReferencesOperations.cs` contains methods that call graph to perform various operations. In current sample we have used create and get methods. **CreateAuthenticationContextClassReferenceAsync** method creates the auth context: `Note: this class calls the /beta endpoint of Graph as the API was available only on the /beta endpoint at the time of this sample's publishing`
 
     ```csharp
    public async Task<Beta.AuthenticationContextClassReference> CreateAuthenticationContextClassReferenceAsync(string id, string displayName, string description, bool IsAvailable)
@@ -405,7 +428,7 @@ If an operation was saved for a certain authContext and there is a CA policy con
     }
     ```
 
-1. In `TodoListController.cs`, the method **EnsureUserHasElevatedScope** retrieves the acrsValue from database for the request method. Then checks if the access token has acrs claim with acrsValue. If does not exists then adds WWW-Authenticate and throws UnauthorizedAccessException exception.
+1. In `TodoListController.cs`, the method **EnsureUserHasElevatedScope** retrieves the acrsValue from database for the request method. Then checks if the access token has `acrs` claim with acrsValue. If does not exists then adds WWW-Authenticate and throws UnauthorizedAccessException exception.
 
     ```csharp
     public void EnsureUserHasElevatedScope(string method)
@@ -439,6 +462,30 @@ If an operation was saved for a certain authContext and there is a CA policy con
             }
         }
     }
+
+           /// <summary>
+        /// Evaluates for the presence of the client capabilities claim (xms_cc) and accordingly returns a response if present.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public bool IsClientCapableofClaimsChallenge(HttpContext context)
+        {
+            string clientCapabilitiesClaim = "xms_cc";
+
+            if (context == null || context.User == null || context.User.Claims == null || !context.User.Claims.Any())
+            {
+                throw new ArgumentNullException("No Usercontext is available to pick claims from");
+            }
+
+            Claim ccClaim = context.User.FindAll(clientCapabilitiesClaim).FirstOrDefault(x => x.Type == "xms_cc");
+
+            if (ccClaim != null && ccClaim.Value == "cp1")
+            {
+                return true;
+            }
+
+            return false;
+        }
     ```
 
 ### Code for the Web App (TodoListClient)
@@ -471,6 +518,7 @@ public async Task<ActionResult> Create([Bind("Title,Owner")] Todo todo)
     }
     return RedirectToAction("Index");
 }
+
 ```
 
 ## More information
