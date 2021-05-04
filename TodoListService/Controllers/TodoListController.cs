@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Identity.Web.Resource;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -18,6 +19,7 @@ using TodoListService.Models;
 namespace TodoListService.Controllers
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+   // [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
     [Route("api/[controller]")]
     public class TodoListController : Controller
     {
