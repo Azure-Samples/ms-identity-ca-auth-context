@@ -165,12 +165,6 @@ The first thing that we need to do is to declare the unique [resource](https://d
       "essential": false,
       "name": "xms_cc",
       "source": null
-    },
-    {
-      "additionalProperties": [],
-      "essential": false,
-      "name": "acrs",
-      "source": null
     }
   ],
   "idToken": [],
