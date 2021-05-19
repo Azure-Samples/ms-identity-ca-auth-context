@@ -76,9 +76,9 @@ namespace TodoListService.Controllers
             // Default values, if no values anywhere, this table will be used.
             Dictionary<string, string> dictACRValues = new Dictionary<string, string>()
                 {
-                    {"C1","Regular privilege" },
-                    {"C2","Medium-high privilege" },
-                    {"C3","High privilege" }
+                    {"C1","Require strong authentication" },
+                    {"C2","Require compliant devices" },
+                    {"C3","Require trusted locations" }
             };
 
             string sessionKey = "ACRS";

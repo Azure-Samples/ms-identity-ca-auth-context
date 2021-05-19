@@ -319,9 +319,9 @@ If an operation was saved for a certain authContext and there is a CA policy con
     {
          Dictionary<string, string> dictACRValues = new Dictionary<string, string>()
             {
-                {"C1","Regular privilege" },
-                {"C2","Medium-high privilege" },
-                {"C3","High privilege" }
+                    {"C1","Require strong authentication" },
+                    {"C2","Require compliant devices" },
+                    {"C3","Require trusted locations" }
         };
 
         string sessionKey = "ACRS";
@@ -428,10 +428,10 @@ If an operation was saved for a certain authContext and there is a CA policy con
     }
     ```
 
-1. In `TodoListController.cs`, the method **EnsureUserHasElevatedScope** retrieves the acrsValue from database for the request method. Then checks if the access token has `acrs` claim with acrsValue. If does not exists then adds WWW-Authenticate and throws UnauthorizedAccessException exception.
+1. In `TodoListController.cs`, the method **CheckForRequiredAuthContext** retrieves the acrsValue from database for the request method. Then checks if the access token has `acrs` claim with acrsValue. If does not exists then adds WWW-Authenticate and throws UnauthorizedAccessException exception.
 
     ```csharp
-    public void EnsureUserHasElevatedScope(string method)
+    public void CheckForRequiredAuthContext(string method)
     {
         string authType = _commonDBContext.AuthContext.FirstOrDefault(x => x.Operation == method && x.TenantId == _configuration["AzureAD:TenantId"])?.AuthContextId;
     

@@ -46,14 +46,14 @@ namespace TodoListService.Controllers
         [HttpGet("{id}", Name = "Get")]
         public Todo Get(int id)
         {
-            EnsureUserHasElevatedScope(Request.Method);
+            CheckForRequiredAuthContext(Request.Method);
             return _commonDBContext.Todo.FirstOrDefault(t => t.Id == id);
         }
 
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            EnsureUserHasElevatedScope(Request.Method);
+            CheckForRequiredAuthContext(Request.Method);
             var todo = _commonDBContext.Todo.Find(id);
             if (todo != null)
             {
@@ -66,7 +66,7 @@ namespace TodoListService.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] Todo todo)
         {
-            EnsureUserHasElevatedScope(Request.Method);
+            CheckForRequiredAuthContext(Request.Method);
             Todo todonew = new Todo() { Owner = HttpContext.User.Identity.Name, Title = todo.Title };
             _commonDBContext.Todo.Add(todonew);
             _commonDBContext.SaveChanges();
@@ -89,13 +89,13 @@ namespace TodoListService.Controllers
         }
 
         /// <summary>
-        /// Retreives the acrsValue from database for the request method.
+        /// Retrieves the acrsValue from database for the request method.
         /// Checks if the access token has acrs claim with acrsValue.
         /// If does not exists then adds WWW-Authenticate and throws UnauthorizedAccessException exception.
         /// </summary>
         /// <param name="method"></param>
         /// <returns></returns>
-        public void EnsureUserHasElevatedScope(string method)
+        public void CheckForRequiredAuthContext(string method)
         {
             string authType = _commonDBContext.AuthContext.FirstOrDefault(x => x.Operation == method && x.TenantId == _configuration["AzureAD:TenantId"])?.AuthContextId;
 
@@ -112,7 +112,7 @@ namespace TodoListService.Controllers
 
                 Claim acrsClaim = context.User.FindAll(authenticationContextClassReferencesClaim).FirstOrDefault(x => x.Value == authType);
 
-                if (acrsClaim == null || acrsClaim.Value != authType)
+                if (acrsClaim?.Value != authType)
                 {
                     if (IsClientCapableofClaimsChallenge(context))
                     {
