@@ -97,9 +97,9 @@ namespace TodoListService.Controllers
         /// <returns></returns>
         public void CheckForRequiredAuthContext(string method)
         {
-            string authType = _commonDBContext.AuthContext.FirstOrDefault(x => x.Operation == method && x.TenantId == _configuration["AzureAD:TenantId"])?.AuthContextId;
+            string savedAuthContextId = _commonDBContext.AuthContext.FirstOrDefault(x => x.Operation == method && x.TenantId == _configuration["AzureAD:TenantId"])?.AuthContextId;
 
-            if (!string.IsNullOrEmpty(authType))
+            if (!string.IsNullOrEmpty(savedAuthContextId))
             {
                 HttpContext context = this.HttpContext;
 
@@ -110,14 +110,14 @@ namespace TodoListService.Controllers
                     throw new ArgumentNullException("No Usercontext is available to pick claims from");
                 }
 
-                Claim acrsClaim = context.User.FindAll(authenticationContextClassReferencesClaim).FirstOrDefault(x => x.Value == authType);
+                Claim acrsClaim = context.User.FindAll(authenticationContextClassReferencesClaim).FirstOrDefault(x => x.Value == savedAuthContextId);
 
-                if (acrsClaim?.Value != authType)
+                if (acrsClaim?.Value != savedAuthContextId)
                 {
                     if (IsClientCapableofClaimsChallenge(context))
                     {
                         string clientId = _configuration.GetSection("AzureAd").GetSection("ClientId").Value;
-                        var base64str = Convert.ToBase64String(Encoding.UTF8.GetBytes("{\"access_token\":{\"acrs\":{\"essential\":true,\"value\":\"" + authType + "\"}}}"));
+                        var base64str = Convert.ToBase64String(Encoding.UTF8.GetBytes("{\"access_token\":{\"acrs\":{\"essential\":true,\"value\":\"" + savedAuthContextId + "\"}}}"));
 
                         context.Response.Headers.Append("WWW-Authenticate", $"Bearer realm=\"\", authorization_uri=\"https://login.microsoftonline.com/common/oauth2/authorize\", client_id=\"" + clientId + "\", error=\"insufficient_claims\", claims=\"" + base64str + "\", cc_type=\"authcontext\"");
                         context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
