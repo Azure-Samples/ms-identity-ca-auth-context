@@ -38,7 +38,7 @@ This code sample uses the Conditional Access Auth Context to demand a higher bar
 
 ![Overview](./ReadmeFiles/topology.png)
 
-> :information_source: Check out the community call: [Use Conditional Access Auth Context in your app for step-up authentication](https://www.youtube.com/watch?v=_iO7CfoktTY&ab_channel=Microsoft365Community)
+> :information_source: Check out the recorded session on this topic: [Use Conditional Access Auth Context in your app for step-up authentication](https://www.youtube.com/watch?v=_iO7CfoktTY&ab_channel=Microsoft365Community)
 > 
 ## Prerequisites
 
