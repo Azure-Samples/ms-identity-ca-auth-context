@@ -20,7 +20,7 @@ namespace TodoListClient
 
                 try
                 {
-                    // read the header and checks if it conatins error with insufficient_claims value.
+                    // read the header and checks if it contains error with insufficient_claims value.
                     if (null != errorValue && "insufficient_claims" == errorValue)
                     {
                         var claimChallengeParameter = GetParameterValue(parameters, "claims");
