@@ -252,18 +252,20 @@ dotnet run
 
 ### Configure the Web API
 
-1. Browse `https://localhost:44351` and sign-in using Admin account. Go to Admin page of the **Web API**.
+1. We'd first replicate the experience of an admin configuring the auth contexts. For that, browse to `https://localhost:44321` and sign-in using a tenant Admin account. Click on the **Admin** link on the menu.
 
     ![Overview](./ReadmeFiles/Admin.png)
-1. As a first step, you will ensure that a set of Auth Context is already available in this tenant. Click the **CreateOrFetch** button to check if they exist, if not, the code will create three auth context entries for you. These three entires are named `Low`, `Medium` and `High`.
+2. As a first step, you will ensure that a set of Auth Context is already available in this tenant. Click the **CreateOrFetch** button to check if they exist. If they don't , the code will create three sample auth context entries for you. These three entires are named `Require strong authentication`, `Require compliant devices` and `Require trusted locations`.
 
     > Note: The Graph permission, **Policy.ReadWrite.ConditionalAccess** is required for creating new records. In production, the permission, **Policy.Read.ConditionalAccess** should be sufficient to read existing values and thus is recommended.
 
     ![Overview](./ReadmeFiles/Create-Fetch_Click.png)
 
-    Select an operation in the Web API and an `Authentication Context` value to apply and select **SaveOrUpdate**. We advise you use the same auth context value if possible as this ensures that the suer is redirected to Azure AD just once to perform the step-up authN.
+    Select an operation in the Web API and an `Authentication Context` value to apply and select **SaveOrUpdate**. This updates this mapping in the local app's database. We advise you use the same auth context value for operations if possible, as this ensures that the suer is redirected to Azure AD just once to perform the step-up authN.
 
-1. Go to `View Details page to get details of data saved on the Web API side in its database. You can select **Delete** if you need to delete the mapping from database.
+>Note: When changing auth context mappings, have the user sign-out and sign-back in for the changes to take effect.
+
+1. Go to `View Details page to get details of data saved on the Web API side in its database. You can select **Delete** if you need to delete a mapping from the local database.
 
     ![Overview](./ReadmeFiles/ViewDetails.png)
 The web API is now ready to challenge users for step-up auth for the selected operations.
@@ -271,7 +273,7 @@ The web API is now ready to challenge users for step-up auth for the selected op
 ### Configure a Conditional Access policy to use auth context in Azure portal
 
 1. Navigate to Azure Active Directory> Security > Conditional Access
-1. Select **New policy** and go to **Cloud apps or actions**. In dropdown select **Authentication context (preview)**, newly created auth context values will be provided for you to be used in this CA policy.
+1. Select **New policy** and go to **Cloud apps or actions**. In dropdown select **Authentication context**. The newly created auth context values will be listed for you to be used in this CA policy.
 
     ![Overview](./ReadmeFiles/AuthContext.png)
 
@@ -298,7 +300,7 @@ If an operation was saved for a certain authContext and there is a CA policy con
     services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
     ```
 
-    Below lines of code enables Microsoft identity platform endpoint to authenticate the users.
+    Below lines of code enables Microsoft identity platform endpoint to authenticate the users and to call MS Graph.
 
     ```csharp
     services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
