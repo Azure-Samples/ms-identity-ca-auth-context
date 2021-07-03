@@ -30,6 +30,9 @@ description: "This sample demonstrates using the Conditional Access auth context
 
 This code sample uses the Conditional Access Auth Context to demand a higher bar of authentication for certain high-privileged and sensitive operations in a [protected Web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-overview).
 
+> To use the CA Auth context in a Web app, please try the[Use the Conditional Access auth context to perform step\-up authentication for high\-privilege operations in a Web app](https://github.com/Azure-Samples/ms-identity-dotnetcore-ca-auth-context-app/blob/main/README.md) code sample.
+
+
 ## Scenario
 
 1. The client ASP.NET Core Web App uses the [Microsoft.Identity.Web](https://aka.ms/microsoft-identity-web) and Microsoft Authentication Library for .NET ([MSAL.NET](https://aka.ms/msal-net)) to sign-in and obtain a JWT access token from **Azure AD**.
