@@ -6,7 +6,7 @@ using System.Net;
 namespace TodoListClient.Services
 {
     /// <summary>
-    /// Specialized excpetion handler for the TodoListService
+    /// Specialized exception handler for the TodoListService
     /// </summary>
     public class WebApiMsalUiRequiredException : Exception
     {
