@@ -25,12 +25,12 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Graph" Version="3.29.0" />
+    <PackageReference Include="Microsoft.Graph" Version="3.35.0" />
     <PackageReference Include="Microsoft.Graph.Beta" Version="4.0.1-preview" Aliases="BetaLib" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.30.0" />
-    <PackageReference Include="Microsoft.Identity.Web" Version="1.9.1" />
-    <PackageReference Include="Microsoft.Identity.Web.MicrosoftGraphBeta" Version="1.9.1" />
-    <PackageReference Include="Microsoft.Identity.Web.UI" Version="1.9.1" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.34.0" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="1.14.0" />
+    <PackageReference Include="Microsoft.Identity.Web.MicrosoftGraphBeta" Version="1.14.0" />
+    <PackageReference Include="Microsoft.Identity.Web.UI" Version="1.14.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" />
   </ItemGroup>
 

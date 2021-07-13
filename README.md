@@ -457,7 +457,7 @@ If an operation was saved for a certain authContext and there is a CA policy con
         }
     }
 
-           /// <summary>
+        /// <summary>
         /// Evaluates for the presence of the client capabilities claim (xms_cc) and accordingly returns a response if present.
         /// </summary>
         /// <param name="context"></param>

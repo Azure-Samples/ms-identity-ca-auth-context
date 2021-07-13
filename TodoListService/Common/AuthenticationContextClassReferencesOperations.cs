@@ -1,16 +1,18 @@
 ﻿extern alias BetaLib;
+
+using Microsoft.Graph;
+using Microsoft.Identity.Web;
 using System;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Graph;
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Web;
 using Beta = BetaLib.Microsoft.Graph;
 
 namespace TodoListService
 {
+    /// <summary>
+    /// Uses the Graph SDK to read and write authentication context via MS Graph
+    /// </summary>
     public class AuthenticationContextClassReferencesOperations
     {
         private Beta.GraphServiceClient _graphServiceClient;
@@ -185,4 +187,3 @@ namespace TodoListService
         }
     }
 }
-

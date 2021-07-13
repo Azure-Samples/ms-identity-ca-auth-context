@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using Microsoft.Identity.Client;
+using System.Linq;
 using TodoListClient.Services;
 
 namespace TodoListClient
@@ -14,7 +15,7 @@ namespace TodoListClient
         {
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized && response.Headers.WwwAuthenticate.Any())
             {
-                return AuthenticationHeaderHelper.ExtractClaimChallengeFromHttpHeader(response.Headers);
+                return WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(response.Headers);
             }
             return null;
         }
