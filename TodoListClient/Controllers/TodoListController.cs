@@ -99,12 +99,13 @@ public class TodoListController : Controller
     {
         try
         {
-            Todo todo = await this._todoListService.GetAsync(id);
+            var todo = await _todoListService.GetAsync(id);
 
             if (todo == null)
             {
                 return NotFound();
             }
+
             return View(todo);
 
         }
@@ -144,7 +145,7 @@ public class TodoListController : Controller
     {
         try
         {
-            Todo todo = await this._todoListService.GetAsync(id);
+            var todo = await _todoListService.GetAsync(id);
 
             if (todo == null)
             {

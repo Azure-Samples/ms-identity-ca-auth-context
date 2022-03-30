@@ -106,7 +106,7 @@ public class TodoListController : Controller
 
         if (!string.IsNullOrEmpty(savedAuthContextId))
         {
-            HttpContext context = this.HttpContext;
+            var context = HttpContext;
 
             string authenticationContextClassReferencesClaim = "acrs";
 

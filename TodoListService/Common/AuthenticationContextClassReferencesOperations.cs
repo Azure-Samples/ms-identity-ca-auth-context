@@ -15,7 +15,7 @@ public class AuthenticationContextClassReferencesOperations
 
     public AuthenticationContextClassReferencesOperations(Beta.GraphServiceClient graphServiceClient)
     {
-        this._graphServiceClient = graphServiceClient;
+        _graphServiceClient = graphServiceClient;
         Beta.AuthenticationContextClassReference refn = new Beta.AuthenticationContextClassReference();
     }
 
