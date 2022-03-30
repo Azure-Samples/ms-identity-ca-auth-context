@@ -67,11 +67,9 @@ public class AuthenticationContextClassReferencesOperations
 
     public async Task<Beta.AuthenticationContextClassReference> CreateAuthenticationContextClassReferenceAsync(string id, string displayName, string description, bool IsAvailable)
     {
-        Beta.AuthenticationContextClassReference newACRObject = null;
-
         try
         {
-            newACRObject = await _graphServiceClient.Identity.ConditionalAccess.AuthenticationContextClassReferences.Request().AddAsync(new Beta.AuthenticationContextClassReference
+            var newACRObject = await _graphServiceClient.Identity.ConditionalAccess.AuthenticationContextClassReferences.Request().AddAsync(new Beta.AuthenticationContextClassReference
             {
                 Id = id,
                 DisplayName = displayName,
@@ -79,6 +77,8 @@ public class AuthenticationContextClassReferencesOperations
                 IsAvailable = IsAvailable,
                 ODataType = null
             });
+
+            return newACRObject;
         }
         catch (ServiceException e)
         {
@@ -86,8 +86,6 @@ public class AuthenticationContextClassReferencesOperations
 
             return null;
         }
-
-        return newACRObject;
     }
 
     public async Task<Beta.AuthenticationContextClassReference> UpdateAuthenticationContextClassReferenceAsync(string ACRId, bool IsAvailable, string displayName = null, string description = null)
@@ -96,7 +94,7 @@ public class AuthenticationContextClassReferencesOperations
 
         if (ACRObjectToUpdate == null)
         {
-            throw new ArgumentNullException("id", $"No ACR matching '{ACRId}' exists");
+            throw new ArgumentNullException(nameof(ACRId), $"No ACR matching '{ACRId}' exists");
         }
 
         try

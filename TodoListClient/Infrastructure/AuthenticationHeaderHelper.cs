@@ -47,7 +47,8 @@ public class AuthenticationHeaderHelper
     /// <returns></returns>
     private static string ConvertBase64String(string inputString)
     {
-        if (inputString == null || inputString.Length == 0 || inputString.Length % 4 != 0 || inputString.Contains(" ") || inputString.Contains("\t") || inputString.Contains("\r") || inputString.Contains("\n"))
+        if (inputString == null || inputString.Length == 0 || inputString.Length % 4 != 0 || inputString.Contains(' ') 
+            || inputString.Contains('\t') || inputString.Contains('\r') || inputString.Contains('\n'))
         {
             return inputString;
         }

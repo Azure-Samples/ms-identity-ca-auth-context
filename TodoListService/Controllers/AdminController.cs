@@ -120,7 +120,7 @@ public class AdminController : Controller
     /// <returns></returns>
     public IActionResult ViewDetails()
     {
-        List<AuthContext> authContexts = new List<AuthContext>();
+        var authContexts = new List<AuthContext>();
 
         authContexts = _commonDBContext.AuthContext
             .Where(x => x.TenantId == _tenantId).ToList();
