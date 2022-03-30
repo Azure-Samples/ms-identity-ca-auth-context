@@ -20,17 +20,15 @@ namespace TodoListClient.Services;
 /// <seealso cref="TodoListClient.Services.ITodoListService" />
 public class TodoListService : ITodoListService
 {
-    private readonly IHttpContextAccessor _contextAccessor;
     private readonly HttpClient _httpClient;
     private readonly string _TodoListScope = string.Empty;
     private readonly string _TodoListBaseAddress = string.Empty;
     private readonly ITokenAcquisition _tokenAcquisition;
 
-    public TodoListService(ITokenAcquisition tokenAcquisition, HttpClient httpClient, IConfiguration configuration, IHttpContextAccessor contextAccessor)
+    public TodoListService(ITokenAcquisition tokenAcquisition, HttpClient httpClient, IConfiguration configuration)
     {
         _httpClient = httpClient;
         _tokenAcquisition = tokenAcquisition;
-        _contextAccessor = contextAccessor;
         _TodoListScope = configuration["TodoList:TodoListScope"];
         _TodoListBaseAddress = configuration["TodoList:TodoListBaseAddress"];
     }

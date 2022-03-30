@@ -8,7 +8,7 @@ namespace TodoListClient.Services;
 
 public static class TodoListServiceExtensions
 {
-    public static void AddTodoListService(this IServiceCollection services, IConfiguration configuration)
+    public static void AddTodoListService(this IServiceCollection services)
     {
         // https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
         services.AddHttpClient<ITodoListService, TodoListService>();

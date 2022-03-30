@@ -58,7 +58,7 @@ public class TodoListController : Controller
     // GET: TodoList/Create
     public ActionResult Create()
     {
-        Todo todo = new Todo() { Owner = HttpContext.User.Identity.Name };
+        var todo = new Todo{ Owner = HttpContext.User.Identity.Name };
         return View(todo);
     }
 

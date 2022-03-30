@@ -45,7 +45,7 @@ public class Startup
                 .AddInMemoryTokenCaches();
 
         // Add APIs
-        services.AddTodoListService(Configuration);
+        services.AddTodoListService();
 
         services.AddControllersWithViews(options =>
         {

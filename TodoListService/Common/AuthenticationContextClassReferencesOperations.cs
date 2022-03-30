@@ -11,17 +11,16 @@ namespace TodoListService;
 
 public class AuthenticationContextClassReferencesOperations
 {
-    private Beta.GraphServiceClient _graphServiceClient;
+    private readonly Beta.GraphServiceClient _graphServiceClient;
 
     public AuthenticationContextClassReferencesOperations(Beta.GraphServiceClient graphServiceClient)
     {
         _graphServiceClient = graphServiceClient;
-        Beta.AuthenticationContextClassReference refn = new Beta.AuthenticationContextClassReference();
     }
 
     public async Task<List<Beta.AuthenticationContextClassReference>> ListAuthenticationContextClassReferencesAsync()
     {
-        List<Beta.AuthenticationContextClassReference> allAuthenticationContextClassReferences = new List<Beta.AuthenticationContextClassReference>();
+        var allAuthenticationContextClassReferences = new List<Beta.AuthenticationContextClassReference>();
 
         try
         {
@@ -135,7 +134,7 @@ public class AuthenticationContextClassReferencesOperations
 
     private async Task<List<Beta.AuthenticationContextClassReference>> ProcessIAuthenticationContextClassReferenceRootPoliciesCollectionPage(Beta.IConditionalAccessRootAuthenticationContextClassReferencesCollectionPage authenticationContextClassreferencesPage)
     {
-        List<Beta.AuthenticationContextClassReference> allAuthenticationContextClassReferences = new List<Beta.AuthenticationContextClassReference>();
+        var allAuthenticationContextClassReferences = new List<Beta.AuthenticationContextClassReference>();
 
         try
         {
@@ -169,7 +168,7 @@ public class AuthenticationContextClassReferencesOperations
     public async Task<string> PrintAuthenticationContextClassReference(Beta.AuthenticationContextClassReference authenticationContextClassReference, bool verbose = false)
     {
         string toPrint = string.Empty;
-        StringBuilder more = new StringBuilder();
+        var more = new StringBuilder();
 
         if (authenticationContextClassReference != null)
         {

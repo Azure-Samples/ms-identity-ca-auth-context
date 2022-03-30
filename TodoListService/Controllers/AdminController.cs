@@ -26,8 +26,8 @@ namespace TodoListService.Controllers;
 public class AdminController : Controller
 {
     //private CommonDBContext _commonDBContext;
-    private AuthenticationContextClassReferencesOperations _authContextClassReferencesOperations;
-    private IConfiguration _configuration;
+    private readonly AuthenticationContextClassReferencesOperations _authContextClassReferencesOperations;
+    private readonly IConfiguration _configuration;
 
     private readonly string _tenantId;
     private readonly CommonDBContext _commonDBContext;
@@ -54,9 +54,9 @@ public class AdminController : Controller
         };
 
         // If this tenant already has authcontext available, we use those instead.
-        var existingAuthContexts = await getAuthenticationContextValues();
+        var existingAuthContexts = await GetAuthenticationContextValues();
 
-        if (existingAuthContexts.Count() > 0)
+        if (existingAuthContexts.Count > 0)
         {
             AuthContextValues.Clear();
 
@@ -75,7 +75,7 @@ public class AdminController : Controller
     }
 
     // returns a default set of AuthN context values for the app to work with, either from Graph a or a default hard coded set
-    private async Task<Dictionary<string, string>> getAuthenticationContextValues()
+    private async Task<Dictionary<string, string>> GetAuthenticationContextValues()
     {
         // Default values, if no values anywhere, this table will be used.
         var dictACRValues = new Dictionary<string, string>()
@@ -179,12 +179,12 @@ public class AdminController : Controller
     /// <returns></returns>
     private async Task CreateAuthContextViaGraph()
     {
-        Dictionary<string, string> dictACRValues = await getAuthenticationContextValues();
+        Dictionary<string, string> dictACRValues = await GetAuthenticationContextValues();
 
         foreach (KeyValuePair<string, string> acr in dictACRValues)
         {
             await _authContextClassReferencesOperations
-                .CreateAuthenticationContextClassReferenceAsync(acr.Key, acr.Value, $"A new Authentication Context Class Reference created at {DateTime.Now.ToString()}", true);
+                .CreateAuthenticationContextClassReferenceAsync(acr.Key, acr.Value, $"A new Authentication Context Class Reference created at {DateTime.Now}", true);
         }
     }
 
@@ -198,7 +198,7 @@ public class AdminController : Controller
     /// <returns></returns>
     public async Task SaveOrUpdateAuthContextDB(AuthContext authContext)
     {
-        var dictACRValues = await getAuthenticationContextValues();
+        var dictACRValues = await GetAuthenticationContextValues();
         authContext.AuthContextDisplayName = dictACRValues.FirstOrDefault(x => x.Key == authContext.AuthContextId).Value;
 
         var isExists = _commonDBContext.AuthContext.AsNoTracking().FirstOrDefault(x => x.TenantId == _tenantId && x.Operation == authContext.Operation);
