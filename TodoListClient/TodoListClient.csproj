@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>aspnet-WebApp_OpenIDConnect_DotNet-81EA87AD-E64D-4755-A1CC-5EA47F49B5D8</UserSecretsId>
     <WebProject_DirectoryAccessLevelKey>0</WebProject_DirectoryAccessLevelKey>
   </PropertyGroup>
@@ -22,9 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions" Version="3.1.1" />
-    <PackageReference Include="Microsoft.Identity.Web" Version="1.9.1" />
-    <PackageReference Include="Microsoft.Identity.Web.UI" Version="1.9.1" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions" Version="6.0.3" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="1.23.1" />
+    <PackageReference Include="Microsoft.Identity.Web.UI" Version="1.23.1" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
   </ItemGroup>
 
