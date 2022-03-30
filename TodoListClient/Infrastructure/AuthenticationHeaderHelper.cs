@@ -43,8 +43,6 @@ public class AuthenticationHeaderHelper
     /// <summary>
     /// Checks and if input is base-64 encoded string then decodes it.
     /// </summary>
-    /// <param name="inputString"></param>
-    /// <returns></returns>
     private static string ConvertBase64String(string inputString)
     {
         if (inputString == null || inputString.Length == 0 || inputString.Length % 4 != 0 || inputString.Contains(' ') 

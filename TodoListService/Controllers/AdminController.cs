@@ -117,7 +117,6 @@ public class AdminController : Controller
     /// <summary>
     /// Retreives the authentication context and operation mapping saved in database for the tenant.
     /// </summary>
-    /// <returns></returns>
     public IActionResult ViewDetails()
     {
         var authContexts = new List<AuthContext>();

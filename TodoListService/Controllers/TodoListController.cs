@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using System.Security.Claims;
 using System.Text;
 using TodoListService.Models;
 
@@ -95,8 +94,6 @@ public class TodoListController : Controller
     /// Checks if the access token has acrs claim with acrsValue.
     /// If does not exists then adds WWW-Authenticate and throws UnauthorizedAccessException exception.
     /// </summary>
-    /// <param name="method"></param>
-    /// <returns></returns>
     public void CheckForRequiredAuthContext(string method)
     {
         string savedAuthContextId = _commonDBContext.AuthContext.FirstOrDefault(x => x.Operation == method && x.TenantId == _configuration["AzureAD:TenantId"])?.AuthContextId;
@@ -139,8 +136,6 @@ public class TodoListController : Controller
     /// <summary>
     /// Evaluates for the presence of the client capabilities claim (xms_cc) and accordingly returns a response if present.
     /// </summary>
-    /// <param name="context"></param>
-    /// <returns></returns>
     public bool IsClientCapableofClaimsChallenge(HttpContext context)
     {
         string clientCapabilitiesClaim = "xms_cc";
