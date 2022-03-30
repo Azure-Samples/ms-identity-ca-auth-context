@@ -40,7 +40,6 @@ public class Startup
             options.Cookie.IsEssential = true;
         });
 
-
         services.Configure<CookiePolicyOptions>(options =>
         {
             // This lambda determines whether user consent for non-essential cookies is needed for a given request.
@@ -63,10 +62,10 @@ public class Startup
 
         // Adds Microsoft Identity platform (AAD v2.0) support to authenticate users
         services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityWebApp(Configuration, "AzureAd", subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: true)
-                        .EnableTokenAcquisitionToCallDownstreamApi()
-                            .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
-                        .AddInMemoryTokenCaches();
+            .AddMicrosoftIdentityWebApp(Configuration, "AzureAd", subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: true)
+                .EnableTokenAcquisitionToCallDownstreamApi()
+                    .AddMicrosoftGraph(Configuration.GetSection("GraphBeta"))
+                .AddInMemoryTokenCaches();
 
         services.AddScoped<AuthenticationContextClassReferencesOperations>();
 
