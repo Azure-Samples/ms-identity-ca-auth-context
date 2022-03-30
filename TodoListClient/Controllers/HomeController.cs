@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web;
 using System.Diagnostics;
 using WebApp_OpenIDConnect_DotNet.Models;
 
@@ -9,13 +8,6 @@ namespace WebApp_OpenIDConnect_DotNet.Controllers;
 [Authorize]
 public class HomeController : Controller
 {
-    private readonly ITokenAcquisition _tokenAcquisition;
-
-    public HomeController(ITokenAcquisition tokenAcquisition)
-    {
-        _tokenAcquisition = tokenAcquisition;
-    }
-
     public IActionResult Index()
     {
         return View();

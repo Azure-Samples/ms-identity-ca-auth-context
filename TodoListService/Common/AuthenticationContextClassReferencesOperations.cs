@@ -35,11 +35,13 @@ public class AuthenticationContextClassReferencesOperations
         catch (ServiceException e)
         {
             Console.WriteLine($"We could not retrieve the existing ACRs: {e}");
+
             if (e.InnerException != null)
             {
                 var exp = (MicrosoftIdentityWebChallengeUserException)e.InnerException;
                 throw exp;
             }
+
             throw e;
         }
 
@@ -60,6 +62,7 @@ public class AuthenticationContextClassReferencesOperations
                 throw;
             }
         }
+
         return null;
     }
 
@@ -81,6 +84,7 @@ public class AuthenticationContextClassReferencesOperations
         catch (ServiceException e)
         {
             Console.WriteLine("We could not add a new ACR: " + e.Error.Message);
+
             return null;
         }
 
@@ -110,6 +114,7 @@ public class AuthenticationContextClassReferencesOperations
         catch (ServiceException e)
         {
             Console.WriteLine("We could not update the ACR: " + e.Error.Message);
+
             return null;
         }
 
@@ -154,6 +159,7 @@ public class AuthenticationContextClassReferencesOperations
         catch (ServiceException e)
         {
             Console.WriteLine($"We could not process the authentication context class references list: {e}");
+            
             return null;
         }
 

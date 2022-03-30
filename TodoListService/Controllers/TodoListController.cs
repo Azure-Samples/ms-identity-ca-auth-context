@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Web.Resource;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -23,14 +22,11 @@ namespace TodoListService.Controllers;
 [Route("api/[controller]")]
 public class TodoListController : Controller
 {
-    private CommonDBContext _commonDBContext;
+    private readonly CommonDBContext _commonDBContext;
+    private readonly IConfiguration _configuration;
 
-    private readonly IHttpContextAccessor _contextAccessor;
-    private IConfiguration _configuration;
-
-    public TodoListController(IHttpContextAccessor contextAccessor, IConfiguration configuration, CommonDBContext commonDBContext)
+    public TodoListController(IConfiguration configuration, CommonDBContext commonDBContext)
     {
-        _contextAccessor = contextAccessor;
         _configuration = configuration;
         _commonDBContext = commonDBContext;
     }
@@ -55,6 +51,7 @@ public class TodoListController : Controller
     {
         CheckForRequiredAuthContext(Request.Method);
         var todo = _commonDBContext.Todo.Find(id);
+
         if (todo != null)
         {
             _commonDBContext.Todo.Remove(todo);
@@ -115,7 +112,7 @@ public class TodoListController : Controller
                 throw new ArgumentNullException("No Usercontext is available to pick claims from");
             }
 
-            Claim acrsClaim = context.User.FindAll(authenticationContextClassReferencesClaim).FirstOrDefault(x => x.Value == savedAuthContextId);
+            var acrsClaim = context.User.FindAll(authenticationContextClassReferencesClaim).FirstOrDefault(x => x.Value == savedAuthContextId);
 
             if (acrsClaim?.Value != savedAuthContextId)
             {

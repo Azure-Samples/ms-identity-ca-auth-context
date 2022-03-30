@@ -14,29 +14,23 @@ public class AuthenticationHeaderHelper
     {
         if (httpResponseHeaders.WwwAuthenticate.Any())
         {
-            AuthenticationHeaderValue bearer = httpResponseHeaders.WwwAuthenticate.First(v => v.Scheme == "Bearer");
-            IEnumerable<string> parameters = bearer.Parameter.Split(',').Select(v => v.Trim()).ToList();
+            var bearer = httpResponseHeaders.WwwAuthenticate.First(v => v.Scheme == "Bearer");
+            var parameters = bearer.Parameter.Split(',').Select(v => v.Trim()).ToList();
             var errorValue = GetParameterValue(parameters, "error");
 
-            try
+            // read the header and checks if it conatins error with insufficient_claims value.
+            if (null != errorValue && "insufficient_claims" == errorValue)
             {
-                // read the header and checks if it conatins error with insufficient_claims value.
-                if (null != errorValue && "insufficient_claims" == errorValue)
+                var claimChallengeParameter = GetParameterValue(parameters, "claims");
+                if (null != claimChallengeParameter)
                 {
-                    var claimChallengeParameter = GetParameterValue(parameters, "claims");
-                    if (null != claimChallengeParameter)
-                    {
-                        var claimChallenge = ConvertBase64String(claimChallengeParameter);
+                    var claimChallenge = ConvertBase64String(claimChallengeParameter);
 
-                        return claimChallenge;
-                    }
+                    return claimChallenge;
                 }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
         }
+
         return null;
     }
 

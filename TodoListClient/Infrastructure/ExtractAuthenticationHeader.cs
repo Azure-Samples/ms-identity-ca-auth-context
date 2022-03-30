@@ -16,6 +16,7 @@ internal class ExtractAuthenticationHeader
         {
             return AuthenticationHeaderHelper.ExtractClaimChallengeFromHttpHeader(response.Headers);
         }
+
         return null;
     }
 }

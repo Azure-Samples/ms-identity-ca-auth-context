@@ -10,11 +10,13 @@ namespace TodoListClient.Services;
 /// </summary>
 public class WebApiMsalUiRequiredException : Exception
 {
-    private HttpResponseMessage httpResponseMessage;
+    private readonly HttpResponseMessage httpResponseMessage;
+
     public WebApiMsalUiRequiredException(string message, HttpResponseMessage response) : base(message)
     {
         httpResponseMessage = response;
     }
+
     public HttpStatusCode StatusCode
     {
         get { return httpResponseMessage.StatusCode; }

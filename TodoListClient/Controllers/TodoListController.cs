@@ -168,6 +168,7 @@ public class TodoListController : Controller
 
             Console.WriteLine(hex.Message);
         }
+
         return View();
     }
 

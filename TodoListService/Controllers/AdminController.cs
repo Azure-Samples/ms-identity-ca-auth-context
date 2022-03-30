@@ -78,11 +78,11 @@ public class AdminController : Controller
     private async Task<Dictionary<string, string>> getAuthenticationContextValues()
     {
         // Default values, if no values anywhere, this table will be used.
-        Dictionary<string, string> dictACRValues = new Dictionary<string, string>()
-            {
-                {"C1","Require strong authentication" },
-                {"C2","Require compliant devices" },
-                {"C3","Require trusted locations" }
+        var dictACRValues = new Dictionary<string, string>()
+        {
+            {"C1","Require strong authentication" },
+            {"C2","Require compliant devices" },
+            {"C3","Require trusted locations" }
         };
 
         string sessionKey = "ACRS";
@@ -107,7 +107,7 @@ public class AdminController : Controller
                 }
 
                 // Save this in session
-                HttpContext.Session.Set<Dictionary<string, string>>(sessionKey, dictACRValues);
+                HttpContext.Session.Set(sessionKey, dictACRValues);
             }
         }
 
@@ -198,7 +198,7 @@ public class AdminController : Controller
     /// <returns></returns>
     public async Task SaveOrUpdateAuthContextDB(AuthContext authContext)
     {
-        Dictionary<string, string> dictACRValues = await getAuthenticationContextValues();
+        var dictACRValues = await getAuthenticationContextValues();
         authContext.AuthContextDisplayName = dictACRValues.FirstOrDefault(x => x.Key == authContext.AuthContextId).Value;
 
         var isExists = _commonDBContext.AuthContext.AsNoTracking().FirstOrDefault(x => x.TenantId == _tenantId && x.Operation == authContext.Operation);
