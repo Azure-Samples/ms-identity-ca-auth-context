@@ -52,7 +52,6 @@ public class TodoListService : ITodoListService
         }
          
         throw new WebApiMsalUiRequiredException($"Unexpected status code in the HttpResponseMessage: {response.StatusCode}.", response);
-
     }
 
     public async Task DeleteAsync(int id)
@@ -65,6 +64,7 @@ public class TodoListService : ITodoListService
         {
             return;
         }
+
         throw new WebApiMsalUiRequiredException($"Unexpected status code in the HttpResponseMessage: {response.StatusCode}.", response);
     }
 
@@ -99,6 +99,7 @@ public class TodoListService : ITodoListService
 
             return todolist;
         }
+
         throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}.");
     }
 
@@ -123,6 +124,5 @@ public class TodoListService : ITodoListService
         }
          
         throw new WebApiMsalUiRequiredException($"Unexpected status code in the HttpResponseMessage: {response.StatusCode}.", response);
-
     }
 }
