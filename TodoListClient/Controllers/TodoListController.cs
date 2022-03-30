@@ -10,23 +10,21 @@ namespace TodoListClient.Controllers;
 
 public class TodoListController : Controller
 {
-    private ITodoListService _todoListService;
+    private readonly ITodoListService _todoListService;
     private readonly MicrosoftIdentityConsentAndConditionalAccessHandler _consentHandler;
 
     public TodoListController(ITodoListService todoListService,
                         MicrosoftIdentityConsentAndConditionalAccessHandler consentHandler)
     {
         _todoListService = todoListService;
-        this._consentHandler = consentHandler;
+        _consentHandler = consentHandler;
     }
 
     // GET: TodoList
     [AuthorizeForScopes(ScopeKeySection = "TodoList:TodoListScope")]
     public async Task<ActionResult> Index()
     {
-           
-            return View(await _todoListService.GetAsync());
-           
+        return View(await _todoListService.GetAsync()); 
     }
 
     // GET: TodoList/Details/5

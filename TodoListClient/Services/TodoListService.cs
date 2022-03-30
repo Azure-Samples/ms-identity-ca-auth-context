@@ -3,7 +3,6 @@
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,15 +15,6 @@ using System.Threading.Tasks;
 using TodoListService.Models;
 
 namespace TodoListClient.Services;
-
-public static class TodoListServiceExtensions
-{
-    public static void AddTodoListService(this IServiceCollection services, IConfiguration configuration)
-    {
-        // https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
-        services.AddHttpClient<ITodoListService, TodoListService>();
-    }
-}
 
 /// <summary></summary>
 /// <seealso cref="TodoListClient.Services.ITodoListService" />
@@ -101,17 +91,15 @@ public class TodoListService : ITodoListService
     {
         await PrepareAuthenticatedClient();
         var response = await _httpClient.GetAsync($"{ _TodoListBaseAddress}/api/todolist");
-        var responseContent = response.Content.ReadAsStringAsync().Result;
 
         if (response.StatusCode == HttpStatusCode.OK)
         {
             var content = await response.Content.ReadAsStringAsync();
-            IEnumerable<Todo> todolist = JsonSerializer.Deserialize<IEnumerable<Todo>>(content);
+            var todolist = JsonSerializer.Deserialize<IEnumerable<Todo>>(content);
 
             return todolist;
         }
         throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}.");
-
     }
 
     private async Task PrepareAuthenticatedClient()
