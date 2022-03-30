@@ -1,4 +1,6 @@
-﻿namespace TodoListService.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TodoListService.Models;
 
 public class Todo
 {

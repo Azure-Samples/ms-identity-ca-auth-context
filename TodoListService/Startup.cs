@@ -71,7 +71,8 @@ public class Startup
         services.AddScoped<AuthenticationContextClassReferencesOperations>();
 
         // LocalDb database to store Web API settings
-        services.AddDbContext<CommonDBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+        services.AddDbContext<CommonDBContext>(options => 
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
         services.AddControllersWithViews(options =>
         {

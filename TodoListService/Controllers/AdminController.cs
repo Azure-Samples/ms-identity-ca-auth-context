@@ -29,13 +29,17 @@ public class AdminController : Controller
     private AuthenticationContextClassReferencesOperations _authContextClassReferencesOperations;
     private IConfiguration _configuration;
 
-    private string TenantId;
+    private readonly string _tenantId;
+    private readonly CommonDBContext _commonDBContext;
 
-    public AdminController(IConfiguration configuration, AuthenticationContextClassReferencesOperations authContextClassReferencesOperations, CommonDBContext commonDBContext)
+    public AdminController(IConfiguration configuration, 
+        AuthenticationContextClassReferencesOperations authContextClassReferencesOperations, 
+        CommonDBContext commonDBContext)
     {
         _configuration = configuration;
         _authContextClassReferencesOperations = authContextClassReferencesOperations;
-        TenantId = _configuration["AzureAd:TenantId"];
+        _tenantId = _configuration["AzureAd:TenantId"];
+        _commonDBContext = commonDBContext;
     }
 
     public async Task<IActionResult> Index()
@@ -44,10 +48,10 @@ public class AdminController : Controller
         IList<SelectListItem> AuthContextValues = new List<SelectListItem>();
 
         IEnumerable<SelectListItem> Operations = new List<SelectListItem>
-            {
-                new SelectListItem{Text= "Post"},
-                new SelectListItem{ Text= "Delete"}
-            };
+        {
+            new SelectListItem{Text= "Post"},
+            new SelectListItem{ Text= "Delete"}
+        };
 
         // If this tenant already has authcontext available, we use those instead.
         var existingAuthContexts = await getAuthenticationContextValues();
@@ -63,7 +67,7 @@ public class AdminController : Controller
         }
 
         // Set data to be used in the UI
-        TempData["TenantId"] = TenantId;
+        TempData["TenantId"] = _tenantId;
         TempData["AuthContextValues"] = AuthContextValues;
         TempData["Operations"] = Operations;
 
@@ -92,7 +96,8 @@ public class AdminController : Controller
         {
             var existingAuthContexts = await _authContextClassReferencesOperations.ListAuthenticationContextClassReferencesAsync();
 
-            if (existingAuthContexts.Count() > 0)                 // If this tenant already has authcontext available, we use those instead.
+            // If this tenant already has authcontext available, we use those instead.
+            if (existingAuthContexts.Count > 0) 
             {
                 dictACRValues.Clear();
 
@@ -117,21 +122,17 @@ public class AdminController : Controller
     {
         List<AuthContext> authContexts = new List<AuthContext>();
 
-        using (var commonDBContext = new CommonDBContext(_configuration))
-        {
-            authContexts = commonDBContext.AuthContext.Where(x => x.TenantId == TenantId).ToList();
-        }
+        authContexts = _commonDBContext.AuthContext
+            .Where(x => x.TenantId == _tenantId).ToList();
 
         return View(authContexts);
     }
 
     public ActionResult Delete(string id)
     {
-        AuthContext authContext = null;
-        using (var commonDBContext = new CommonDBContext(_configuration))
-        {
-            authContext = commonDBContext.AuthContext.FirstOrDefault(x => x.AuthContextId == id && x.TenantId == TenantId);
-        }
+        var authContext = _commonDBContext.AuthContext
+            .FirstOrDefault(x => x.AuthContextId == id && x.TenantId == _tenantId);
+        
         return View(authContext);
     }
 
@@ -143,11 +144,8 @@ public class AdminController : Controller
     [HttpPost]
     public ActionResult Delete([Bind("TenantId,AuthContextId,AuthContextDisplayName,Operation")] AuthContext authContext)
     {
-        using (var commonDBContext = new CommonDBContext(_configuration))
-        {
-            commonDBContext.AuthContext.Remove(authContext);
-            commonDBContext.SaveChanges();
-        }
+        _commonDBContext.AuthContext.Remove(authContext);
+        _commonDBContext.SaveChanges();
 
         return RedirectToAction("ViewDetails");
     }
@@ -171,6 +169,7 @@ public class AdminController : Controller
         {
             await CreateAuthContextViaGraph();
         }
+
         return lstPolicies;
     }
 
@@ -184,7 +183,8 @@ public class AdminController : Controller
 
         foreach (KeyValuePair<string, string> acr in dictACRValues)
         {
-            await _authContextClassReferencesOperations.CreateAuthenticationContextClassReferenceAsync(acr.Key, acr.Value, $"A new Authentication Context Class Reference created at {DateTime.Now.ToString()}", true);
+            await _authContextClassReferencesOperations
+                .CreateAuthenticationContextClassReferenceAsync(acr.Key, acr.Value, $"A new Authentication Context Class Reference created at {DateTime.Now.ToString()}", true);
         }
     }
 
@@ -201,18 +201,16 @@ public class AdminController : Controller
         Dictionary<string, string> dictACRValues = await getAuthenticationContextValues();
         authContext.AuthContextDisplayName = dictACRValues.FirstOrDefault(x => x.Key == authContext.AuthContextId).Value;
 
-        using (var commonDBContext = new CommonDBContext(_configuration))
+        var isExists = _commonDBContext.AuthContext.AsNoTracking().FirstOrDefault(x => x.TenantId == _tenantId && x.Operation == authContext.Operation);
+        if (isExists == null)
         {
-            var isExists = commonDBContext.AuthContext.AsNoTracking().FirstOrDefault(x => x.TenantId == TenantId && x.Operation == authContext.Operation);
-            if (isExists == null)
-            {
-                commonDBContext.AuthContext.Add(authContext);
-            }
-            else
-            {
-                commonDBContext.AuthContext.Update(authContext);
-            }
-            await commonDBContext.SaveChangesAsync();
+            _commonDBContext.AuthContext.Add(authContext);
         }
+        else
+        {
+            _commonDBContext.AuthContext.Update(authContext);
+        }
+
+        await _commonDBContext.SaveChangesAsync();
     }
 }

@@ -62,15 +62,20 @@ public class TodoListController : Controller
         }
     }
 
-    // POST api/values
     [HttpPost]
     public IActionResult Post([FromBody] Todo todo)
     {
         CheckForRequiredAuthContext(Request.Method);
-        Todo todonew = new Todo() { Owner = HttpContext.User.Identity.Name, Title = todo.Title };
+        var todonew = new Todo
+        { 
+            Owner = HttpContext.User.Identity.Name, 
+            Title = todo.Title 
+        };
+
         _commonDBContext.Todo.Add(todonew);
         _commonDBContext.SaveChanges();
-        return Ok(todo);
+
+        return Ok(todonew);
     }
 
     // PATCH api/values
