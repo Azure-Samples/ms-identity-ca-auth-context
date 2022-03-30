@@ -109,7 +109,7 @@ public class TodoListController : Controller
 
             if (context == null || context.User == null || context.User.Claims == null || !context.User.Claims.Any())
             {
-                throw new ArgumentNullException("No Usercontext is available to pick claims from");
+                throw new ArgumentNullException("context", "No Usercontext is available to pick claims from");
             }
 
             var acrsClaim = context.User.FindAll(authenticationContextClassReferencesClaim).FirstOrDefault(x => x.Value == savedAuthContextId);
@@ -147,7 +147,7 @@ public class TodoListController : Controller
 
         if (context == null || context.User == null || context.User.Claims == null || !context.User.Claims.Any())
         {
-            throw new ArgumentNullException("No Usercontext is available to pick claims from");
+            throw new ArgumentNullException(nameof(context), "No Usercontext is available to pick claims from");
         }
 
         var ccClaim = context.User.FindAll(clientCapabilitiesClaim).FirstOrDefault(x => x.Type == "xms_cc");
