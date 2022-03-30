@@ -150,7 +150,7 @@ public class TodoListController : Controller
             throw new ArgumentNullException("No Usercontext is available to pick claims from");
         }
 
-        Claim ccClaim = context.User.FindAll(clientCapabilitiesClaim).FirstOrDefault(x => x.Type == "xms_cc");
+        var ccClaim = context.User.FindAll(clientCapabilitiesClaim).FirstOrDefault(x => x.Type == "xms_cc");
 
         if (ccClaim != null && ccClaim.Value == "cp1")
         {
