@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 using System;
 using System.Threading.Tasks;
@@ -39,7 +40,8 @@ public class TodoListController : Controller
             // Challenges the user if exception is thrown from Web API.
             try
             {
-                var claimChallenge = ExtractAuthenticationHeader.ExtractHeaderValues(hex);
+                var claimChallenge = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(hex.Headers);
+
                 _consentHandler.ChallengeUser(new string[] { "user.read" }, claimChallenge);
 
                 return new EmptyResult();
@@ -76,7 +78,8 @@ public class TodoListController : Controller
             // Challenges the user if exception is thrown from Web API.
             try
             {
-                var claimChallenge = ExtractAuthenticationHeader.ExtractHeaderValues(hex);
+                var claimChallenge = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(hex.Headers);
+
                 _consentHandler.ChallengeUser(new string[] { "user.read" }, claimChallenge);
 
                 return new EmptyResult();
@@ -112,7 +115,8 @@ public class TodoListController : Controller
             // Challenges the user if exception is thrown from Web API.
             try
             {
-                var claimChallenge = ExtractAuthenticationHeader.ExtractHeaderValues(hex);
+                var claimChallenge = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(hex.Headers);
+
                 _consentHandler.ChallengeUser(new string[] { "user.read" }, claimChallenge);
 
                 return new EmptyResult();
@@ -156,7 +160,8 @@ public class TodoListController : Controller
             // Challenges the user if exception is thrown from Web API.
             try
             {
-                var claimChallenge = ExtractAuthenticationHeader.ExtractHeaderValues(hex);
+                var claimChallenge = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(hex.Headers);
+
                 _consentHandler.ChallengeUser(new string[] { "user.read" }, claimChallenge);
                 return new EmptyResult();
 
@@ -186,7 +191,8 @@ public class TodoListController : Controller
             // Challenges the user if exception is thrown from Web API.
             try
             {
-                var claimChallenge = ExtractAuthenticationHeader.ExtractHeaderValues(hex);
+                var claimChallenge = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(hex.Headers);
+
                 _consentHandler.ChallengeUser(new string[] { "user.read" }, claimChallenge);
                 return new EmptyResult();
 
