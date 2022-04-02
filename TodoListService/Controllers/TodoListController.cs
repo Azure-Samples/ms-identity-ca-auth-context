@@ -66,7 +66,7 @@ public class TodoListController : Controller
         CheckForRequiredAuthContext(Request.Method);
         var todonew = new Todo
         { 
-            Owner = HttpContext.User.Identity.Name, 
+            Owner = todo.Owner, 
             Title = todo.Title 
         };
 
