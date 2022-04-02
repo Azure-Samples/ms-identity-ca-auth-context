@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using TodoListService.Models;
 
 namespace TodoListService.Controllers;
@@ -32,34 +34,34 @@ public class TodoListController : Controller
 
     // GET: api/values
     [HttpGet]
-    public IEnumerable<Todo> Get()
+    public async Task<IEnumerable<Todo>> GetAsync()
     {
-        return _commonDBContext.Todo.ToList();
+        return await _commonDBContext.Todo.ToListAsync();
     }
 
     // GET: api/values
     [HttpGet("{id}", Name = "Get")]
-    public Todo Get(int id)
+    public async Task<Todo> GetAsync(int id)
     {
         CheckForRequiredAuthContext(Request.Method);
-        return _commonDBContext.Todo.FirstOrDefault(t => t.Id == id);
+        return await _commonDBContext.Todo.FirstOrDefaultAsync(t => t.Id == id);
     }
 
     [HttpDelete("{id}")]
-    public void Delete(int id)
+    public async Task DeleteAsync(int id)
     {
         CheckForRequiredAuthContext(Request.Method);
-        var todo = _commonDBContext.Todo.Find(id);
+        var todo = await _commonDBContext.Todo.FindAsync(id);
 
         if (todo != null)
         {
             _commonDBContext.Todo.Remove(todo);
-            _commonDBContext.SaveChanges();
+            await _commonDBContext.SaveChangesAsync();
         }
     }
 
     [HttpPost]
-    public IActionResult Post([FromBody] Todo todo)
+    public async Task<IActionResult> PostAsync([FromBody] Todo todo)
     {
         CheckForRequiredAuthContext(Request.Method);
         var todonew = new Todo
@@ -69,14 +71,14 @@ public class TodoListController : Controller
         };
 
         _commonDBContext.Todo.Add(todonew);
-        _commonDBContext.SaveChanges();
+        await _commonDBContext.SaveChangesAsync();
 
         return Ok(todonew);
     }
 
     // PATCH api/values
     [HttpPatch("{id}")]
-    public IActionResult Patch(int id, [FromBody] Todo todo)
+    public async Task<IActionResult> PatchAsync(int id, [FromBody] Todo todo)
     {
         if (id != todo.Id)
         {
@@ -84,7 +86,7 @@ public class TodoListController : Controller
         }
 
         _commonDBContext.Todo.Update(todo);
-        _commonDBContext.SaveChanges();
+        await _commonDBContext.SaveChangesAsync();
 
         return Ok(todo);
     }
