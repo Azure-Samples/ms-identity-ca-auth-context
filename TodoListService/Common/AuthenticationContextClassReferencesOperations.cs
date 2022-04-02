@@ -163,18 +163,17 @@ public class AuthenticationContextClassReferencesOperations
         return allAuthenticationContextClassReferences;
     }
 
-    public async Task<string> PrintAuthenticationContextClassReference(Beta.AuthenticationContextClassReference authenticationContextClassReference, bool verbose = false)
+    public string PrintAuthenticationContextClassReference(Beta.AuthenticationContextClassReference authenticationContextClassReference, bool verbose = false)
     {
-        string toPrint = string.Empty;
-        var more = new StringBuilder();
+        var sb = new StringBuilder();
 
         if (authenticationContextClassReference != null)
         {
-            toPrint = $"DisplayName-{authenticationContextClassReference.DisplayName}, IsAvailable-{authenticationContextClassReference.IsAvailable}, Id- '{authenticationContextClassReference.Id}'";
+            sb.AppendLine($"DisplayName-{authenticationContextClassReference.DisplayName}, IsAvailable-{authenticationContextClassReference.IsAvailable}, Id- '{authenticationContextClassReference.Id}'");
 
             if (verbose)
             {
-                more.AppendLine($", Description-'{authenticationContextClassReference.Description}'");
+                sb.AppendLine($", Description-'{authenticationContextClassReference.Description}'");
             }
         }
         else
@@ -182,6 +181,6 @@ public class AuthenticationContextClassReferencesOperations
             Console.WriteLine("The provided authenticationContextClassReference is null!");
         }
 
-        return await Task.FromResult(toPrint + more.ToString());
+        return sb.ToString();
     }
 }
