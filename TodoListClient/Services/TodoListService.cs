@@ -43,9 +43,7 @@ public class TodoListService : ITodoListService
         if (response.StatusCode == HttpStatusCode.OK)
         {
             var content = await response.Content.ReadAsStringAsync();
-            todo = JsonSerializer.Deserialize<Todo>(content);
-
-            return todo;
+            return JsonSerializer.Deserialize<Todo>(content);
         }
          
         throw new WebApiMsalUiRequiredException($"Unexpected status code in the HttpResponseMessage: {response.StatusCode}.", response);
@@ -76,9 +74,7 @@ public class TodoListService : ITodoListService
         if (response.StatusCode == HttpStatusCode.OK)
         {
             var content = await response.Content.ReadAsStringAsync();
-            todo = JsonSerializer.Deserialize<Todo>(content);
-
-            return todo;
+            return JsonSerializer.Deserialize<Todo>(content);
         }
 
         throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}.");
@@ -92,9 +88,7 @@ public class TodoListService : ITodoListService
         if (response.StatusCode == HttpStatusCode.OK)
         {
             var content = await response.Content.ReadAsStringAsync();
-            var todolist = JsonSerializer.Deserialize<IEnumerable<Todo>>(content);
-
-            return todolist;
+            return JsonSerializer.Deserialize<IEnumerable<Todo>>(content);
         }
 
         throw new HttpRequestException($"Invalid status code in the HttpResponseMessage: {response.StatusCode}.");
@@ -111,13 +105,13 @@ public class TodoListService : ITodoListService
     public async Task<Todo> GetAsync(int id)
     {
         await PrepareAuthenticatedClient();
+
         var response = await _httpClient.GetAsync($"{ _TodoListBaseAddress}/api/todolist/{id}");
+
         if (response.StatusCode == HttpStatusCode.OK)
         {
             var content = await response.Content.ReadAsStringAsync();
-            Todo todo = JsonSerializer.Deserialize<Todo>(content);
-
-            return todo;
+            return JsonSerializer.Deserialize<Todo>(content);
         }
          
         throw new WebApiMsalUiRequiredException($"Unexpected status code in the HttpResponseMessage: {response.StatusCode}.", response);
