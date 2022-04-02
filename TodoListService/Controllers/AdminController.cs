@@ -1,5 +1,4 @@
 ﻿extern alias BetaLib;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +27,6 @@ public class AdminController : Controller
     //private CommonDBContext _commonDBContext;
     private readonly AuthenticationContextClassReferencesOperations _authContextClassReferencesOperations;
     private readonly IConfiguration _configuration;
-
     private readonly string _tenantId;
     private readonly CommonDBContext _commonDBContext;
 
@@ -45,9 +43,8 @@ public class AdminController : Controller
     public async Task<IActionResult> Index()
     {
         // Defaults
-        IList<SelectListItem> AuthContextValues = new List<SelectListItem>();
-
-        IEnumerable<SelectListItem> Operations = new List<SelectListItem>
+        var authContextValues = new List<SelectListItem>();
+        var operations = new List<SelectListItem>
         {
             new SelectListItem{Text= "Post"},
             new SelectListItem{ Text= "Delete"}
@@ -58,18 +55,18 @@ public class AdminController : Controller
 
         if (existingAuthContexts.Count > 0)
         {
-            AuthContextValues.Clear();
+            authContextValues.Clear();
 
             foreach (var authContext in existingAuthContexts)
             {
-                AuthContextValues.Add(new SelectListItem() { Text = authContext.Value, Value = authContext.Key});
+                authContextValues.Add(new SelectListItem() { Text = authContext.Value, Value = authContext.Key});
             }
         }
 
         // Set data to be used in the UI
         TempData["TenantId"] = _tenantId;
-        TempData["AuthContextValues"] = AuthContextValues;
-        TempData["Operations"] = Operations;
+        TempData["AuthContextValues"] = authContextValues;
+        TempData["Operations"] = operations;
 
         return View();
     }
@@ -138,8 +135,6 @@ public class AdminController : Controller
     /// <summary>
     /// Delete the data from database.
     /// </summary>
-    /// <param name="authContext"></param>
-    /// <returns></returns>
     [HttpPost]
     public ActionResult Delete([Bind("TenantId,AuthContextId,AuthContextDisplayName,Operation")] AuthContext authContext)
     {
@@ -153,7 +148,6 @@ public class AdminController : Controller
     /// Checks if AuthenticationContext exists.
     /// If not then create with default values.
     /// </summary>
-    /// <returns></returns>
     [AuthorizeForScopes(ScopeKeySection = "GraphBeta:Scopes")]
     public async Task<List<Beta.AuthenticationContextClassReference>> CreateOrFetch()
     {
@@ -175,10 +169,9 @@ public class AdminController : Controller
     /// <summary>
     /// Create Authentication context for the tenant.
     /// </summary>
-    /// <returns></returns>
     private async Task CreateAuthContextViaGraph()
     {
-        Dictionary<string, string> dictACRValues = await GetAuthenticationContextValues();
+        var dictACRValues = await GetAuthenticationContextValues();
 
         foreach (KeyValuePair<string, string> acr in dictACRValues)
         {
@@ -191,24 +184,17 @@ public class AdminController : Controller
     /// Save the Operation and Auth Context mapping in database.
     /// If an Operation is already mapped with Auth Context then updates the mapping.
     /// </summary>
-    /// <param name="id"></param>
-    /// <param name="tenantId"></param>
-    /// <param name="value"></param>
-    /// <returns></returns>
     public async Task SaveOrUpdateAuthContextDB(AuthContext authContext)
     {
         var dictACRValues = await GetAuthenticationContextValues();
         authContext.AuthContextDisplayName = dictACRValues.FirstOrDefault(x => x.Key == authContext.AuthContextId).Value;
 
-        var isExists = _commonDBContext.AuthContext.AsNoTracking().FirstOrDefault(x => x.TenantId == _tenantId && x.Operation == authContext.Operation);
-        if (isExists == null)
-        {
+        var exists = _commonDBContext.AuthContext.AsNoTracking().FirstOrDefault(x => x.TenantId == _tenantId && x.Operation == authContext.Operation);
+        
+        if (exists == null)
             _commonDBContext.AuthContext.Add(authContext);
-        }
         else
-        {
             _commonDBContext.AuthContext.Update(authContext);
-        }
 
         await _commonDBContext.SaveChangesAsync();
     }
