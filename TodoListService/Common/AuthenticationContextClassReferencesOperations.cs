@@ -24,7 +24,11 @@ public class AuthenticationContextClassReferencesOperations
 
         try
         {
-            Beta.IConditionalAccessRootAuthenticationContextClassReferencesCollectionPage authenticationContextClassreferences = await _graphServiceClient.Identity.ConditionalAccess.AuthenticationContextClassReferences.Request().GetAsync();
+            var authenticationContextClassreferences = await _graphServiceClient.Identity
+                    .ConditionalAccess
+                    .AuthenticationContextClassReferences
+                    .Request()
+                    .GetAsync();
 
             if (authenticationContextClassreferences != null)
             {
@@ -47,12 +51,16 @@ public class AuthenticationContextClassReferencesOperations
         return allAuthenticationContextClassReferences;
     }
 
-    public async Task<Beta.AuthenticationContextClassReference> GetAuthenticationContextClassReferenceByIdAsync(string ACRId)
+    public async Task<Beta.AuthenticationContextClassReference> GetAuthenticationContextClassReferenceByIdAsync(string acrId)
     {
         try
         {
-            Beta.AuthenticationContextClassReference ACRObject = await _graphServiceClient.Identity.ConditionalAccess.AuthenticationContextClassReferences[ACRId].Request().GetAsync();
-            return ACRObject;
+            return await _graphServiceClient
+                .Identity
+                .ConditionalAccess
+                .AuthenticationContextClassReferences[acrId]
+                .Request()
+                .GetAsync();
         }
         catch (ServiceException gex)
         {
@@ -60,25 +68,27 @@ public class AuthenticationContextClassReferencesOperations
             {
                 throw;
             }
-        }
 
-        return null;
+            return null;
+        }
     }
 
     public async Task<Beta.AuthenticationContextClassReference> CreateAuthenticationContextClassReferenceAsync(string id, string displayName, string description, bool IsAvailable)
     {
         try
         {
-            var newACRObject = await _graphServiceClient.Identity.ConditionalAccess.AuthenticationContextClassReferences.Request().AddAsync(new Beta.AuthenticationContextClassReference
-            {
-                Id = id,
-                DisplayName = displayName,
-                Description = description,
-                IsAvailable = IsAvailable,
-                ODataType = null
-            });
-
-            return newACRObject;
+            return await _graphServiceClient
+                .Identity.ConditionalAccess
+                .AuthenticationContextClassReferences
+                .Request()
+                .AddAsync(new Beta.AuthenticationContextClassReference
+                {
+                    Id = id,
+                    DisplayName = displayName,
+                    Description = description,
+                    IsAvailable = IsAvailable,
+                    ODataType = null
+                });
         }
         catch (ServiceException e)
         {
@@ -88,25 +98,30 @@ public class AuthenticationContextClassReferencesOperations
         }
     }
 
-    public async Task<Beta.AuthenticationContextClassReference> UpdateAuthenticationContextClassReferenceAsync(string ACRId, bool IsAvailable, string displayName = null, string description = null)
+    public async Task<Beta.AuthenticationContextClassReference> UpdateAuthenticationContextClassReferenceAsync(string acrId, bool isAvailable, string displayName = null, string description = null)
     {
-        Beta.AuthenticationContextClassReference ACRObjectToUpdate = await GetAuthenticationContextClassReferenceByIdAsync(ACRId);
+        var acrToUpdate = await GetAuthenticationContextClassReferenceByIdAsync(acrId);
 
-        if (ACRObjectToUpdate == null)
+        if (acrToUpdate == null)
         {
-            throw new ArgumentNullException(nameof(ACRId), $"No ACR matching '{ACRId}' exists");
+            throw new ArgumentNullException(nameof(acrId), $"No ACR matching '{acrId}' exists");
         }
 
         try
         {
-            ACRObjectToUpdate = await _graphServiceClient.Identity.ConditionalAccess.AuthenticationContextClassReferences[ACRId].Request().UpdateAsync(new Beta.AuthenticationContextClassReference
-            {
-                Id = ACRId,
-                DisplayName = displayName ?? ACRObjectToUpdate.DisplayName,
-                Description = description ?? ACRObjectToUpdate.Description,
-                IsAvailable = IsAvailable,
-                ODataType = null
-            });
+            return await _graphServiceClient
+                .Identity
+                .ConditionalAccess
+                .AuthenticationContextClassReferences[acrId]
+                .Request()
+                .UpdateAsync(new Beta.AuthenticationContextClassReference
+                {
+                    Id = acrId,
+                    DisplayName = displayName ?? acrToUpdate.DisplayName,
+                    Description = description ?? acrToUpdate.Description,
+                    IsAvailable = isAvailable,
+                    ODataType = null
+                });
         }
         catch (ServiceException e)
         {
@@ -114,19 +129,22 @@ public class AuthenticationContextClassReferencesOperations
 
             return null;
         }
-
-        return ACRObjectToUpdate;
     }
 
-    public async Task DeleteAuthenticationContextClassReferenceAsync(string ACRId)
+    public async Task DeleteAuthenticationContextClassReferenceAsync(string acrId)
     {
         try
         {
-            await _graphServiceClient.Identity.ConditionalAccess.AuthenticationContextClassReferences[ACRId].Request().DeleteAsync();
+            await _graphServiceClient
+                .Identity
+                .ConditionalAccess
+                .AuthenticationContextClassReferences[acrId]
+                .Request()
+                .DeleteAsync();
         }
         catch (ServiceException e)
         {
-            Console.WriteLine($"We could not delete the ACR with Id-{ACRId}: {e}");
+            Console.WriteLine($"We could not delete the ACR with Id-{acrId}: {e}");
         }
     }
 
