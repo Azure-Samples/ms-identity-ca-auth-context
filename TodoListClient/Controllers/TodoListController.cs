@@ -153,6 +153,7 @@ public class TodoListController : Controller
             {
                 return NotFound();
             }
+
             return View(todo);
         }
         catch (WebApiMsalUiRequiredException hex)
@@ -163,8 +164,8 @@ public class TodoListController : Controller
                 var claimChallenge = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(hex.Headers);
 
                 _consentHandler.ChallengeUser(new string[] { "user.read" }, claimChallenge);
-                return new EmptyResult();
 
+                return new EmptyResult();
             }
             catch (Exception ex)
             {
@@ -194,8 +195,8 @@ public class TodoListController : Controller
                 var claimChallenge = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(hex.Headers);
 
                 _consentHandler.ChallengeUser(new string[] { "user.read" }, claimChallenge);
-                return new EmptyResult();
 
+                return new EmptyResult();
             }
             catch (Exception ex)
             {
@@ -204,6 +205,7 @@ public class TodoListController : Controller
 
             Console.WriteLine(hex.Message);
         }
+
         return RedirectToAction("Index");
     }
 }
