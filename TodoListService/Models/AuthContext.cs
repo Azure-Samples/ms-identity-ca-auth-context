@@ -1,23 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
-namespace TodoListService.Models
+namespace TodoListService.Models;
+
+/// <summary>
+/// Represents an AuthContext record in DB
+/// </summary>
+public class AuthContext
 {
-    /// <summary>
-    /// Represents an AuthContext record in DB
-    /// </summary>
-    public class AuthContext
-    {
-        public string TenantId { get; set; }
+    [JsonPropertyName("tenantId")]
+    public string TenantId { get; set; }
 
-        // the auth context Id
-        public string AuthContextId { get; set; }        
+    // the auth context Id
+    [JsonPropertyName("authContextId")]
+    public string AuthContextId { get; set; }
 
-        public string AuthContextDisplayName { get; set; }
+    [JsonPropertyName("authContextDisplayName")]
+    public string AuthContextDisplayName { get; set; }
 
-        public string Operation { get; set; }
-    }
+    [JsonPropertyName("operation")]
+    public string Operation { get; set; }
 }

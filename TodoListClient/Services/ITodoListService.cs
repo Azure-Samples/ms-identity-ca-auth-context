@@ -1,5 +1,5 @@
 ﻿/*
- The MIT License (MIT)
+The MIT License (MIT)
 
 Copyright (c) 2018 Microsoft Corporation
 
@@ -20,26 +20,23 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
- */
+*/
 
- using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using TodoListService.Models;
 
-namespace TodoListClient.Services
+namespace TodoListClient.Services;
+
+public interface ITodoListService
 {
-    public interface ITodoListService
-    {
-        Task<IEnumerable<Todo>> GetAsync();
+    Task<IEnumerable<Todo>> GetAsync();
 
-        Task<Todo> GetAsync(int id);
+    Task<Todo> GetAsync(int id);
 
-        Task DeleteAsync(int id);
+    Task DeleteAsync(int id);
 
-        Task<Todo> AddAsync(Todo todo);
+    Task<Todo> AddAsync(Todo todo);
 
-        Task<Todo> EditAsync(Todo todo);
-    }
+    Task<Todo> EditAsync(Todo todo);
 }

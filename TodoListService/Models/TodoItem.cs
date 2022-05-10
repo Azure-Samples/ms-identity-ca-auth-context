@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
-namespace TodoListService.Models
+namespace TodoListService.Models;
+
+public class Todo
 {
-    public class Todo
-    {
-        public int Id { get; set; }
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
 
-        public string Title { get; set; }
+    [JsonPropertyName("title")]
+    public string Title { get; set; }
 
-        public string Owner { get; set; }
-    }
+    [JsonPropertyName("owner")]
+    public string Owner { get; set; }
 }
