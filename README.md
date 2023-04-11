@@ -505,7 +505,7 @@ public async Task<ActionResult> Create([Bind("Title,Owner")] Todo todo)
         try
         {
             var claimChallenge = ExtractAuthenticationHeader.ExtractHeaderValues(hex);
-            _consentHandler.ChallengeUser(new string[] { "api://[Enter_client_ID_Of_TodoListService-v2_from_Azure_Portal,_e.g._2ec40e65-ba09-4853-bcde-bcb60029e596]/access_as_user" }, claimChallenge);
+            _consentHandler.ChallengeUser(new string[] { Configuration["TodoList:TodoListScope"] }, claimChallenge);
 
             return new EmptyResult();
 
