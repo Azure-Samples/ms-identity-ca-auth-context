@@ -194,7 +194,7 @@ public class TodoListController : Controller
             {
                 var claimChallenge = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(hex.Headers);
 
-                _consentHandler.ChallengeUser(new string[] { "user.read" }, claimChallenge);
+                _consentHandler.ChallengeUser(new string[] { "api://[Enter_client_ID_Of_TodoListService-v2_from_Azure_Portal,_e.g._2ec40e65-ba09-4853-bcde-bcb60029e596]/access_as_user" }, claimChallenge);
 
                 return new EmptyResult();
             }
