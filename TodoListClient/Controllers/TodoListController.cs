@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 using System;
@@ -13,9 +14,9 @@ public class TodoListController : Controller
 {
     private readonly ITodoListService _todoListService;
     private readonly MicrosoftIdentityConsentAndConditionalAccessHandler _consentHandler;
-
+    private IConfiguration Configuration { get; }
     public TodoListController(ITodoListService todoListService,
-                        MicrosoftIdentityConsentAndConditionalAccessHandler consentHandler)
+                        MicrosoftIdentityConsentAndConditionalAccessHandler consentHandler, IConfiguration configuration)
     {
         _todoListService = todoListService;
         _consentHandler = consentHandler;
@@ -42,7 +43,7 @@ public class TodoListController : Controller
             {
                 var claimChallenge = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(hex.Headers);
 
-                _consentHandler.ChallengeUser(new string[] { "user.read" }, claimChallenge);
+                _consentHandler.ChallengeUser(new string[] { Configuration["TodoList:TodoListScope"] }, claimChallenge);
 
                 return new EmptyResult();
 
@@ -80,7 +81,7 @@ public class TodoListController : Controller
             {
                 var claimChallenge = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(hex.Headers);
 
-                _consentHandler.ChallengeUser(new string[] { "user.read" }, claimChallenge);
+                _consentHandler.ChallengeUser(new string[] { Configuration["TodoList:TodoListScope"] }, claimChallenge);
 
                 return new EmptyResult();
 
@@ -117,7 +118,7 @@ public class TodoListController : Controller
             {
                 var claimChallenge = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(hex.Headers);
 
-                _consentHandler.ChallengeUser(new string[] { "user.read" }, claimChallenge);
+                _consentHandler.ChallengeUser(new string[] { Configuration["TodoList:TodoListScope"] }, claimChallenge);
 
                 return new EmptyResult();
 
@@ -163,7 +164,7 @@ public class TodoListController : Controller
             {
                 var claimChallenge = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(hex.Headers);
 
-                _consentHandler.ChallengeUser(new string[] { "user.read" }, claimChallenge);
+                _consentHandler.ChallengeUser(new string[] { Configuration["TodoList:TodoListScope"] }, claimChallenge);
 
                 return new EmptyResult();
             }
@@ -194,7 +195,7 @@ public class TodoListController : Controller
             {
                 var claimChallenge = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(hex.Headers);
 
-                _consentHandler.ChallengeUser(new string[] { "user.read" }, claimChallenge);
+                _consentHandler.ChallengeUser(new string[] { Configuration["TodoList:TodoListScope"] }, claimChallenge);
 
                 return new EmptyResult();
             }

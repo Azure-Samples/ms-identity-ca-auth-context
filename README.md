@@ -505,7 +505,7 @@ public async Task<ActionResult> Create([Bind("Title,Owner")] Todo todo)
         try
         {
             var claimChallenge = ExtractAuthenticationHeader.ExtractHeaderValues(hex);
-            _consentHandler.ChallengeUser(new string[] { "user.read" }, claimChallenge);
+            _consentHandler.ChallengeUser(new string[] { Configuration["TodoList:TodoListScope"] }, claimChallenge);
 
             return new EmptyResult();
 
